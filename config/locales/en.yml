@@ -1,0 +1,6 @@
+---
+en:
+  decidim:
+    components:
+      spam_detection:
+        name: SpamDetection
