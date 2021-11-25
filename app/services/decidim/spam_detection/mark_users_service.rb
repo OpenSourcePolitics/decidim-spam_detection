@@ -8,7 +8,7 @@ module Decidim
     class MarkUsersService
       include Decidim::FormFactory
 
-      URL = "http://localhost:8080/api"
+      URL = ENV.fetch("SPAM_DETECTION_API_URL", "http://localhost:8080/api")
       PUBLICY_SEARCHABLE_COLUMNS = [
         :id,
         :decidim_organization_id,
