@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Decidim
   module SpamDetection
     class MarkUsersJob < Decidim::SpamDetection::ApplicationJob

@@ -1,27 +1,27 @@
 # frozen_string_literal: true
 
-require 'uri'
-require 'net/http'
+require "uri"
+require "net/http"
 
 module Decidim
   module SpamDetection
     class MarkUsersService
       include Decidim::FormFactory
 
-      URL = 'http://localhost:8080/api'
-      PUBLICY_SEARCHABLE_COLUMNS = %i[
-        id
-        decidim_organization_id
-        sign_in_count
-        personal_url
-        about
-        avatar
-        extended_data
-        followers_count
-        following_count
-        invitations_count
-        failed_attempts
-        admin
+      URL = "http://localhost:8080/api"
+      PUBLICY_SEARCHABLE_COLUMNS = [
+        :id,
+        :decidim_organization_id,
+        :sign_in_count,
+        :personal_url,
+        :about,
+        :avatar,
+        :extended_data,
+        :followers_count,
+        :following_count,
+        :invitations_count,
+        :failed_attempts,
+        :admin
       ].freeze
 
       SPAM_LEVEL = { very_sure: 0.99, probable: 0.7 }.freeze
@@ -53,7 +53,7 @@ module Decidim
         url = URI(URL)
         http = Net::HTTP.new(url.host, url.port)
         request = Net::HTTP::Post.new(url)
-        request['Content-Type'] = 'application/json'
+        request["Content-Type"] = "application/json"
         request.body = JSON.dump(data)
         response = http.request(request)
         response.read_body
@@ -61,20 +61,20 @@ module Decidim
 
       def mark_spam_users(spam_probability_users_array)
         spam_probability_users_array.each do |spam_probability_hash|
-          if spam_probability_hash['spam_probability'] > SPAM_LEVEL[:very_sure]
+          if spam_probability_hash["spam_probability"] > SPAM_LEVEL[:very_sure]
             block_user(spam_probability_hash)
-          elsif spam_probability_hash['spam_probability'] > SPAM_LEVEL[:probable]
+          elsif spam_probability_hash["spam_probability"] > SPAM_LEVEL[:probable]
             report_user(spam_probability_hash)
           end
         end
       end
 
       def block_user(spam_probability_hash)
-        user = spam_probability_hash['original_user']
+        user = spam_probability_hash["original_user"]
         admin = moderation_user_for(user)
 
         form = form(Decidim::Admin::BlockUserForm).from_params(
-          justification: 'The user was blocked because of a high spam probability by Decidim spam detection bot'
+          justification: "The user was blocked because of a high spam probability by Decidim spam detection bot"
         )
 
         form.define_singleton_method(:user) { user }
@@ -82,16 +82,16 @@ module Decidim
         form.define_singleton_method(:blocking_user) { admin }
 
         Decidim::Admin::BlockUser.call(form)
-        Rails.logger.info("User with id #{user['id']} was blocked for spam")
+        Rails.logger.info("User with id #{user["id"]} was blocked for spam")
       end
 
       def report_user(spam_probability_hash)
-        user = spam_probability_hash['original_user']
+        user = spam_probability_hash["original_user"]
         admin = moderation_user_for(user)
 
         form = form(Decidim::ReportForm).from_params(
-          reason: 'spam',
-          details: 'The user was marked at spam by Decidim spam detection bot'
+          reason: "spam",
+          details: "The user was marked at spam by Decidim spam detection bot"
         )
 
         report = Decidim::CreateUserReport.new(form, user, admin)
@@ -105,9 +105,9 @@ module Decidim
 
       def moderation_user_for(user)
         moderation_admin_params = {
-          name: 'spam detection bot',
-          nickname: 'Spam_detection_bot',
-          email: 'spam_detection_bot@opensourcepolitcs.eu',
+          name: "spam detection bot",
+          nickname: "Spam_detection_bot",
+          email: "spam_detection_bot@opensourcepolitcs.eu",
           admin: true,
           organization: user.organization
         }
@@ -140,7 +140,7 @@ module Decidim
       end
 
       def merge_response_with_users(response)
-        response.map { |resp| resp.merge('original_user' => @users.find(resp['id'])) }
+        response.map { |resp| resp.merge("original_user" => @users.find(resp["id"])) }
       end
     end
   end

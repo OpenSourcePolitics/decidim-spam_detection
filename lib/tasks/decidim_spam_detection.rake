@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :decidim do
   namespace :spam_detection do
     desc "TODO"
