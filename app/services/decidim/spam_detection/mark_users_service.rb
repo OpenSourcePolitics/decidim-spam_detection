@@ -70,7 +70,7 @@ module Decidim
       end
 
       def block_user(spam_probability_hash)
-        user = spam_probability_hash["original_user"]
+        user = spam_probability_hash['original_user']
         admin = moderation_user_for(user)
 
         form = form(Decidim::Admin::BlockUserForm).from_params(
@@ -86,7 +86,7 @@ module Decidim
       end
 
       def report_user(spam_probability_hash)
-        user = spam_probability_hash["original_user"]
+        user = spam_probability_hash['original_user']
         admin = moderation_user_for(user)
 
         form = form(Decidim::ReportForm).from_params(
@@ -103,9 +103,35 @@ module Decidim
         Rails.logger.info("User with id #{user.id} was reported for spam")
       end
 
-      # A user is needed to mark a user as spammy, need to find another way later
       def moderation_user_for(user)
-        Decidim::User.where(admin: true, organization: user.organization).first
+        moderation_admin_params = {
+          name: 'spam detection bot',
+          nickname: 'Spam_detection_bot',
+          email: 'spam_detection_bot@opensourcepolitcs.eu',
+          admin: true,
+          organization: user.organization
+        }
+
+        moderation_admin = Decidim::User.find_by(moderation_admin_params)
+
+        return moderation_admin unless moderation_admin.nil?
+
+        create_moderation_admin(moderation_admin_params)
+      end
+
+      def create_moderation_admin(params)
+        password = ::Devise.friendly_token(::Devise.password_length.last)
+        additional_params = {
+          password: password,
+          password_confirmation: password,
+          tos_agreement: true,
+          email_on_notification: false,
+          email_on_moderations: false
+        }
+        moderation_admin = Decidim::User.new(params.merge(additional_params))
+        moderation_admin.skip_confirmation!
+        moderation_admin.save
+        moderation_admin
       end
 
       def cleaned_users
@@ -114,7 +140,7 @@ module Decidim
       end
 
       def merge_response_with_users(response)
-        response.map { |resp| resp.merge("original_user" => @users.find(resp["id"])) }
+        response.map { |resp| resp.merge('original_user' => @users.find(resp['id'])) }
       end
     end
   end

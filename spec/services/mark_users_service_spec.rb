@@ -26,7 +26,7 @@ module Decidim
         end
       end
 
-      describe "#cleaned_users" do
+      describe '#cleaned_users' do
         let(:publicy_searchable_columns) do
           %i[
             id
@@ -59,12 +59,6 @@ module Decidim
         end
       end
 
-      describe '#moderation_user' do
-        it 'returns the first admin' do
-          expect(subject.moderation_user_for(users.first)).to eq(admins.first)
-        end
-      end
-
       describe '#report_user' do
         it 'reports the user' do
           expect { subject.report_user(user_hash) }.to change(Decidim::UserReport, :count)
@@ -77,13 +71,13 @@ module Decidim
         end
       end
 
-      describe "#mark_spam_users" do
-        let(:users_array) { [user_hash.merge("spam_probability" => spam_probabilty)] }
+      describe '#mark_spam_users' do
+        let(:users_array) { [user_hash.merge('spam_probability' => spam_probabilty)] }
 
-        context "when spam_probility is below probable" do
+        context 'when spam_probility is below probable' do
           let(:spam_probabilty) { 0.1 }
 
-          it "does nothing" do
+          it 'does nothing' do
             instance = subject
 
             expect(instance).not_to receive(:block_user).with(users_array.first)
@@ -93,10 +87,10 @@ module Decidim
           end
         end
 
-        context "when spam_probility is between very_sure and probable" do
+        context 'when spam_probility is between very_sure and probable' do
           let(:spam_probabilty) { 0.8 }
 
-          it "calls block_user method" do
+          it 'calls block_user method' do
             instance = subject
 
             expect(instance).not_to receive(:block_user).with(users_array.first)
@@ -106,10 +100,10 @@ module Decidim
           end
         end
 
-        context "when spam_probility is above very_sure" do
+        context 'when spam_probility is above very_sure' do
           let(:spam_probabilty) { 0.999 }
 
-          it "calls block_user method" do
+          it 'calls block_user method' do
             instance = subject
 
             expect(instance).to receive(:block_user).with(users_array.first).once
@@ -120,34 +114,34 @@ module Decidim
         end
       end
 
-      describe "#send_request_to_api" do
+      describe '#send_request_to_api' do
         let(:users_data) { subject.cleaned_users }
         let(:returned_users_data) do
           users_data.map do |user_data|
-            user_data.merge("spam_proability" => Random.new.rand(100.0))
+            user_data.merge('spam_proability' => Random.new.rand(100.0))
           end
         end
-        let(:url) { "http://localhost:8080/api" }
+        let(:url) { 'http://localhost:8080/api' }
 
         before do
           stub_request(:post, url).with(
             body: JSON.dump(users_data),
             headers: {
-              "Content-Type" => 'application/json'
+              'Content-Type' => 'application/json'
             }
           ).to_return(body: JSON.dump(returned_users_data))
         end
 
-        it "sends an api call" do
+        it 'sends an api call' do
           expect(subject.send_request_to_api(users_data)).to eq(JSON.dump(returned_users_data))
         end
       end
 
-      describe "send_request_in_batch" do
-        let(:subdata_array) { ["foo" => "bar"] }
+      describe '#send_request_in_batch' do
+        let(:subdata_array) { ['foo' => 'bar'] }
         let(:data_array) { subdata_array * 5 }
 
-        it "concatenates the responses" do
+        it 'concatenates the responses' do
           instance = subject
           allow(instance).to receive(:send_request_to_api).with(subdata_array).and_return(JSON.dump(subdata_array))
 
@@ -158,13 +152,34 @@ module Decidim
         end
       end
 
-      describe "merge_response_with_users" do
-        let(:response) { subject.cleaned_users.map { |user| user.merge("spam_probability" => Random.new.rand(100.0)) } }
+      describe '#merge_response_with_users' do
+        let(:response) { subject.cleaned_users.map { |user| user.merge('spam_probability' => Random.new.rand(100.0)) } }
         let(:merged_user) { subject.merge_response_with_users(response) }
 
-        it "returns an array of users with spam probability" do
+        it 'returns an array of users with spam probability' do
           expect(merged_user.first).to be_kind_of(Hash)
-          expect(merged_user.first["original_user"]).to be_kind_of(Decidim::User)
+          expect(merged_user.first['original_user']).to be_kind_of(Decidim::User)
+        end
+      end
+
+      describe '#moderation_user_for' do
+        it 'creates the admin' do
+          expect { subject.moderation_user_for(users.first) }.to change(Decidim::User, :count)
+        end
+
+        context 'when moderation admin exists' do
+          let!(:moderation_admin) do
+            create(:user,
+                   :admin,
+                   organization: organization,
+                   name: 'spam detection bot',
+                   nickname: 'Spam_detection_bot',
+                   email: 'spam_detection_bot@opensourcepolitcs.eu')
+          end
+
+          it 'reuses the admin' do
+            expect { subject.moderation_user_for(users.first) }.not_to change(Decidim::User, :count)
+          end
         end
       end
     end
