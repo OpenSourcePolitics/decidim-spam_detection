@@ -37,7 +37,7 @@ module Decidim
       def ask_and_mark
         spam_probability_array = send_request_in_batch(cleaned_users)
 
-        mark_spam_users(spam_probability_array)
+        mark_spam_users(merge_response_with_users(spam_probability_array))
       end
 
       def send_request_in_batch(data_array, batch_size = 1000)
@@ -59,18 +59,18 @@ module Decidim
         response.read_body
       end
 
-      def mark_spam_users(users_array)
-        users_array.each do |user|
-          if user['spam_probability'] > SPAM_LEVEL[:very_sure]
-            block_user(user)
-          elsif user['spam_probability'] > SPAM_LEVEL[:probable]
-            report_user(user)
+      def mark_spam_users(spam_probability_users_array)
+        spam_probability_users_array.each do |spam_probability_hash|
+          if spam_probability_hash['spam_probability'] > SPAM_LEVEL[:very_sure]
+            block_user(spam_probability_hash)
+          elsif spam_probability_hash['spam_probability'] > SPAM_LEVEL[:probable]
+            report_user(spam_probability_hash)
           end
         end
       end
 
-      def block_user(user)
-        user = find_user_for(user)
+      def block_user(spam_probability_hash)
+        user = spam_probability_hash["original_user"]
         admin = moderation_user_for(user)
 
         form = form(Decidim::Admin::BlockUserForm).from_params(
@@ -85,8 +85,8 @@ module Decidim
         Rails.logger.info("User with id #{user['id']} was blocked for spam")
       end
 
-      def report_user(user)
-        user = find_user_for(user)
+      def report_user(spam_probability_hash)
+        user = spam_probability_hash["original_user"]
         admin = moderation_user_for(user)
 
         form = form(Decidim::ReportForm).from_params(
@@ -108,13 +108,13 @@ module Decidim
         Decidim::User.where(admin: true, organization: user.organization).first
       end
 
-      def find_user_for(user)
-        Decidim::User.find(user['id'])
-      end
-
       def cleaned_users
         @cleaned_users ||= @users.select(PUBLICY_SEARCHABLE_COLUMNS)
                                  .map { |u| u.serializable_hash(force_except: true) }
+      end
+
+      def merge_response_with_users(response)
+        response.map { |resp| resp.merge("original_user" => @users.find(resp["id"])) }
       end
     end
   end

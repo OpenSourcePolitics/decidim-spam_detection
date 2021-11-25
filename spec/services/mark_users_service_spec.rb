@@ -10,7 +10,7 @@ module Decidim
       let!(:users) { create_list(:user, 5, organization: organization) }
       let!(:admins) { create_list(:user, 5, :admin, organization: organization) }
       let(:user_hash) do
-        subject.cleaned_users
+        subject.merge_response_with_users(subject.cleaned_users)
                .first
       end
 
@@ -155,6 +155,16 @@ module Decidim
 
           expect(response).to eq(data_array)
           expect(response.length).to eq(5)
+        end
+      end
+
+      describe "merge_response_with_users" do
+        let(:response) { subject.cleaned_users.map { |user| user.merge("spam_probability" => Random.new.rand(100.0)) } }
+        let(:merged_user) { subject.merge_response_with_users(response) }
+
+        it "returns an array of users with spam probability" do
+          expect(merged_user.first).to be_kind_of(Hash)
+          expect(merged_user.first["original_user"]).to be_kind_of(Decidim::User)
         end
       end
     end
