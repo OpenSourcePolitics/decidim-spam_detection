@@ -116,6 +116,29 @@ module Decidim
           end
         end
       end
+
+      describe "#send_request_to_api" do
+        let(:users_data) { subject.instance_variable_get(:@users) }
+        let(:returned_users_data) do
+          users_data.map do |user_data|
+            user_data.merge("spam_proability" => Random.new.rand(100.0))
+          end
+        end
+        let(:url) { "http://localhost:8080/api" }
+
+        before do
+          stub_request(:post, url).with(
+            body: JSON.dump(users_data),
+            headers: {
+              "Content-Type" => 'application/json'
+            }
+          ).to_return(body: JSON.dump(returned_users_data))
+        end
+
+        it "sends an api call" do
+          expect(subject.send_request_to_api(users_data)).to eq(JSON.dump(returned_users_data))
+        end
+      end
     end
   end
 end

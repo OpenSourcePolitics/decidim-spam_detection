@@ -807,6 +807,7 @@ DEPENDENCIES
   spring (~> 2.0)
   spring-watcher-listen (~> 2.0)
   web-console (~> 4.0)
+  webmock
 
 RUBY VERSION
    ruby 2.7.1p83
