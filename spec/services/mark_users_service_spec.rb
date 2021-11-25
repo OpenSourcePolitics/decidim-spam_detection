@@ -139,6 +139,21 @@ module Decidim
           expect(subject.send_request_to_api(users_data)).to eq(JSON.dump(returned_users_data))
         end
       end
+
+      describe "send_request_in_batch" do
+        let(:subdata_array) { ["foo" => "bar"] }
+        let(:data_array) { subdata_array * 5 }
+
+        it "concatenates the responses" do
+          instance = subject
+          allow(instance).to receive(:send_request_to_api).with(subdata_array).and_return(JSON.dump(subdata_array))
+
+          response = instance.send_request_in_batch(data_array, 1)
+
+          expect(response).to eq(data_array)
+          expect(response.length).to eq(5)
+        end
+      end
     end
   end
 end
