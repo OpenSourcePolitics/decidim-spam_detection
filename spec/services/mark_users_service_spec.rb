@@ -24,6 +24,25 @@ module Decidim
         it "doesn't includes admin in the array" do
           expect(users_instance_variable.length).to eq(5)
         end
+
+        context "when user is already blocked" do
+          let!(:already_blocked_user) { create(:user, blocked: true, organization: organization) }
+
+          it "is not included in the query" do
+            expect(users_instance_variable.length).to eq(5)
+            expect(users_instance_variable).not_to include(already_blocked_user)
+          end
+        end
+
+        context "when user is already moderated" do
+          let!(:already_moderated_user) { create(:user, organization: organization) }
+          let!(:user_moderation) { create(:user_moderation, user: already_moderated_user) }
+
+          it "is not included in the query" do
+            expect(users_instance_variable.length).to eq(5)
+            expect(users_instance_variable).not_to include(already_moderated_user)
+          end
+        end
       end
 
       describe "#cleaned_users" do

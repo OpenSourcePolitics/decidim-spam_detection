@@ -27,7 +27,9 @@ module Decidim
       SPAM_LEVEL = { very_sure: 0.99, probable: 0.7 }.freeze
 
       def initialize
-        @users = Decidim::User.where(admin: false)
+        @users = Decidim::User.left_outer_joins(:user_moderation)
+                              .where(decidim_user_moderations: { decidim_user_id: nil })
+                              .where(admin: false, blocked: false)
       end
 
       def self.run
