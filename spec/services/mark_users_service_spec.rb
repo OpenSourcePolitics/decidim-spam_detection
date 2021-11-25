@@ -96,24 +96,45 @@ module Decidim
         context "when spam_probility is between very_sure and probable" do
           let(:spam_probabilty) { 0.8 }
 
-          it "calls block_user method" do
-            instance = subject
+          context "when perform_block_user is set to true" do
+            before do
+              allow(subject).to receive(:perform_block_user?).and_return(true)
+            end
 
-            expect(instance).not_to receive(:block_user).with(users_array.first)
-            expect(instance).to receive(:report_user).with(users_array.first).once
+            it "calls report_user method" do
+              instance = subject
 
-            instance.mark_spam_users(users_array)
+              expect(instance).not_to receive(:block_user).with(users_array.first)
+              expect(instance).to receive(:report_user).with(users_array.first).once
+
+              instance.mark_spam_users(users_array)
+            end
           end
         end
 
         context "when spam_probility is above very_sure" do
           let(:spam_probabilty) { 0.999 }
 
-          it "calls block_user method" do
+          context "when perform_block_user is set to true" do
+            before do
+              allow(subject).to receive(:perform_block_user?).and_return(true)
+            end
+
+            it "calls block_user method" do
+              instance = subject
+
+              expect(instance).to receive(:block_user).with(users_array.first).once
+              expect(instance).not_to receive(:report_user).with(users_array.first)
+
+              instance.mark_spam_users(users_array)
+            end
+          end
+
+          it "calls report_user method" do
             instance = subject
 
-            expect(instance).to receive(:block_user).with(users_array.first).once
-            expect(instance).not_to receive(:report_user).with(users_array.first)
+            expect(instance).not_to receive(:block_user).with(users_array.first)
+            expect(instance).to receive(:report_user).with(users_array.first).once
 
             instance.mark_spam_users(users_array)
           end

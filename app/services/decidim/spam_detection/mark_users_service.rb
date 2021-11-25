@@ -63,7 +63,7 @@ module Decidim
 
       def mark_spam_users(spam_probability_users_array)
         spam_probability_users_array.each do |spam_probability_hash|
-          if spam_probability_hash["spam_probability"] > SPAM_LEVEL[:very_sure]
+          if spam_probability_hash["spam_probability"] > SPAM_LEVEL[:very_sure] && perform_block_user?
             block_user(spam_probability_hash)
           elsif spam_probability_hash["spam_probability"] > SPAM_LEVEL[:probable]
             report_user(spam_probability_hash)
@@ -143,6 +143,10 @@ module Decidim
 
       def merge_response_with_users(response)
         response.map { |resp| resp.merge("original_user" => @users.find(resp["id"])) }
+      end
+
+      def perform_block_user?
+        ENV.fetch("PERFORM_BLOCK_USER", false)
       end
     end
   end
