@@ -96,11 +96,11 @@ module Decidim
           details: 'The user was marked at spam by Decidim spam detection bot'
         )
 
-        report = Decidim::CreateUserReport
-        report.define_method(:current_organization) { admin.organization }
-        report.define_method(:current_user) { admin }
-        report.define_method(:reportable) { user }
-        report.call(form, user, admin)
+        report = Decidim::CreateUserReport.new(form, user, admin)
+        report.define_singleton_method(:current_organization) { admin.organization }
+        report.define_singleton_method(:current_user) { admin }
+        report.define_singleton_method(:reportable) { user }
+        report.call
 
         Rails.logger.info("User with id #{user.id} was reported for spam")
       end
