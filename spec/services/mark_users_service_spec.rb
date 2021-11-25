@@ -10,12 +10,23 @@ module Decidim
       let!(:users) { create_list(:user, 5, organization: organization) }
       let!(:admins) { create_list(:user, 5, :admin, organization: organization) }
       let(:user_hash) do
-        subject.instance_variable_get(:@users)
+        subject.cleaned_users
                .first
       end
 
       describe 'initialize' do
         let(:users_instance_variable) { subject.instance_variable_get(:@users) }
+
+        it 'returns an array' do
+          expect(users_instance_variable).to be_kind_of(ActiveRecord::Relation)
+        end
+
+        it "doesn't includes admin in the array" do
+          expect(users_instance_variable.length).to eq(5)
+        end
+      end
+
+      describe "#cleaned_users" do
         let(:publicy_searchable_columns) do
           %i[
             id
@@ -33,26 +44,18 @@ module Decidim
           ].freeze
         end
 
-        it 'returns an array' do
-          expect(users_instance_variable).to be_kind_of(Array)
-        end
-
-        it "doesn't includes admin in the array" do
-          expect(users_instance_variable.length).to eq(5)
-        end
-
         it 'returns an array of hash' do
-          expect(users_instance_variable.map(&:class)).to eq([Hash] * 5)
+          expect(subject.cleaned_users.map(&:class)).to eq([Hash] * 5)
         end
 
         it 'returns a hash of publicy_searchable_columns' do
-          expect(users_instance_variable.first.keys.map(&:to_sym)).to match_array(publicy_searchable_columns)
+          expect(subject.cleaned_users.first.keys.map(&:to_sym)).to match_array(publicy_searchable_columns)
         end
 
         it "doesn't include email or password" do
-          expect(users_instance_variable.select { |user_hash| user_hash['email'] }).to eq([])
-          expect(users_instance_variable.select { |user_hash| user_hash['password'] }).to eq([])
-          expect(users_instance_variable.select { |user_hash| user_hash['password_confirmation'] }).to eq([])
+          expect(subject.cleaned_users.select { |user_hash| user_hash['email'] }).to eq([])
+          expect(subject.cleaned_users.select { |user_hash| user_hash['password'] }).to eq([])
+          expect(subject.cleaned_users.select { |user_hash| user_hash['password_confirmation'] }).to eq([])
         end
       end
 
@@ -118,7 +121,7 @@ module Decidim
       end
 
       describe "#send_request_to_api" do
-        let(:users_data) { subject.instance_variable_get(:@users) }
+        let(:users_data) { subject.cleaned_users }
         let(:returned_users_data) do
           users_data.map do |user_data|
             user_data.merge("spam_proability" => Random.new.rand(100.0))

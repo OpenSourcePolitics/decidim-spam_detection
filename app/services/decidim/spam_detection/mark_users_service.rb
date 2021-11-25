@@ -28,8 +28,6 @@ module Decidim
 
       def initialize
         @users = Decidim::User.where(admin: false)
-                              .select(PUBLICY_SEARCHABLE_COLUMNS)
-                              .map { |u| u.serializable_hash(force_except: true) }
       end
 
       def self.run
@@ -37,7 +35,7 @@ module Decidim
       end
 
       def ask_and_mark
-        spam_probability_array = send_request_in_batch(@users)
+        spam_probability_array = send_request_in_batch(cleaned_users)
 
         mark_spam_users(spam_probability_array)
       end
@@ -112,6 +110,11 @@ module Decidim
 
       def find_user_for(user)
         Decidim::User.find(user['id'])
+      end
+
+      def cleaned_users
+        @cleaned_users ||= @users.select(PUBLICY_SEARCHABLE_COLUMNS)
+                                 .map { |u| u.serializable_hash(force_except: true) }
       end
     end
   end
