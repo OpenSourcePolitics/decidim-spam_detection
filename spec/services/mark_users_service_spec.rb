@@ -9,6 +9,10 @@ module Decidim
       let(:organization) { create(:organization) }
       let!(:users) { create_list(:user, 5, organization: organization) }
       let!(:admins) { create_list(:user, 5, :admin, organization: organization) }
+      let(:user_hash) do
+        subject.instance_variable_get(:@users)
+               .first
+      end
 
       describe 'initialize' do
         let(:users_instance_variable) { subject.instance_variable_get(:@users) }
@@ -59,13 +63,14 @@ module Decidim
       end
 
       describe '#report_user' do
-        let(:user_hash) do
-          subject.instance_variable_get(:@users)
-                 .first
-        end
-
         it 'reports the user' do
-          expect { subject.report_user(user_hash) }.to change { Decidim::UserReport.count }
+          expect { subject.report_user(user_hash) }.to change(Decidim::UserReport, :count)
+        end
+      end
+
+      describe '#block_user' do
+        it 'reports the user' do
+          expect { subject.block_user(user_hash) }.to change(Decidim::UserBlock, :count)
         end
       end
     end

@@ -9,19 +9,19 @@ module Decidim
       include Decidim::FormFactory
 
       URL = 'http://localhost:8080/api'
-      PUBLICY_SEARCHABLE_COLUMNS = [
-        :id,
-        :decidim_organization_id,
-        :sign_in_count,
-        :personal_url,
-        :about,
-        :avatar,
-        :extended_data,
-        :followers_count,
-        :following_count,
-        :invitations_count,
-        :failed_attempts,
-        :admin
+      PUBLICY_SEARCHABLE_COLUMNS = %i[
+        id
+        decidim_organization_id
+        sign_in_count
+        personal_url
+        about
+        avatar
+        extended_data
+        followers_count
+        following_count
+        invitations_count
+        failed_attempts
+        admin
       ].freeze
 
       SPAM_LEVEL = { very_sure: 0.99, probable: 0.7 }.freeze
@@ -72,17 +72,23 @@ module Decidim
       end
 
       def block_user(user)
+        user = find_user_for(user)
+        admin = moderation_user_for(user)
+
         form = form(Decidim::Admin::BlockUserForm).from_params(
-          user_id: user["id"],
           justification: 'The user was blocked because of a high spam probability by Decidim spam detection bot'
         )
 
+        form.define_singleton_method(:user) { user }
+        form.define_singleton_method(:current_user) { admin }
+        form.define_singleton_method(:blocking_user) { admin }
+
         Decidim::Admin::BlockUser.call(form)
-        Rails.logger.info("User with id #{user["id"]} was blocked for spam")
+        Rails.logger.info("User with id #{user['id']} was blocked for spam")
       end
 
       def report_user(user)
-        user = Decidim::User.find(user["id"])
+        user = find_user_for(user)
         admin = moderation_user_for(user)
 
         form = form(Decidim::ReportForm).from_params(
@@ -96,12 +102,16 @@ module Decidim
         report.define_method(:reportable) { user }
         report.call(form, user, admin)
 
-        Rails.logger.info("User with id #{user["id"]} was reported for spam")
+        Rails.logger.info("User with id #{user.id} was reported for spam")
       end
 
       # A user is needed to mark a user as spammy, need to find another way later
       def moderation_user_for(user)
         Decidim::User.where(admin: true, organization: user.organization).first
+      end
+
+      def find_user_for(user)
+        Decidim::User.find(user['id'])
       end
     end
   end
