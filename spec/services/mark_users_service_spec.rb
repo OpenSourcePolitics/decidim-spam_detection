@@ -73,6 +73,49 @@ module Decidim
           expect { subject.block_user(user_hash) }.to change(Decidim::UserBlock, :count)
         end
       end
+
+      describe "#mark_spam_users" do
+        let(:users_array) { [user_hash.merge("spam_probability" => spam_probabilty)] }
+
+        context "when spam_probility is below probable" do
+          let(:spam_probabilty) { 0.1 }
+
+          it "does nothing" do
+            instance = subject
+
+            expect(instance).not_to receive(:block_user).with(users_array.first)
+            expect(instance).not_to receive(:report_user).with(users_array.first)
+
+            instance.mark_spam_users(users_array)
+          end
+        end
+
+        context "when spam_probility is between very_sure and probable" do
+          let(:spam_probabilty) { 0.8 }
+
+          it "calls block_user method" do
+            instance = subject
+
+            expect(instance).not_to receive(:block_user).with(users_array.first)
+            expect(instance).to receive(:report_user).with(users_array.first).once
+
+            instance.mark_spam_users(users_array)
+          end
+        end
+
+        context "when spam_probility is above very_sure" do
+          let(:spam_probabilty) { 0.999 }
+
+          it "calls block_user method" do
+            instance = subject
+
+            expect(instance).to receive(:block_user).with(users_array.first).once
+            expect(instance).not_to receive(:report_user).with(users_array.first)
+
+            instance.mark_spam_users(users_array)
+          end
+        end
+      end
     end
   end
 end
