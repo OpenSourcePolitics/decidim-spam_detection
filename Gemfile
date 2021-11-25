@@ -18,6 +18,7 @@ end
 
 group :development do
   gem "faker", "~> 2.14"
+  gem "rubocop-faker"
   gem "letter_opener_web", "~> 1.3"
   gem "listen", "~> 3.1"
   gem "spring", "~> 2.0"
