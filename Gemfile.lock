@@ -307,6 +307,8 @@ GEM
     chef-utils (17.7.29)
       concurrent-ruby
     childprocess (3.0.0)
+    codecov (0.6.0)
+      simplecov (>= 0.15, < 0.22)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     coffee-rails (5.0.0)
@@ -496,6 +498,7 @@ GEM
     mime-types-data (3.2021.1115)
     mini_magick (4.11.0)
     mini_mime (1.1.2)
+    mini_portile2 (2.5.3)
     minitest (5.14.4)
     mixlib-cli (2.1.8)
     mixlib-config (3.0.9)
@@ -510,6 +513,9 @@ GEM
     netrc (0.11.0)
     nio4r (2.5.8)
     nobspw (0.6.2)
+    nokogiri (1.11.7)
+      mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
     nokogiri (1.11.7-x86_64-darwin)
       racc (~> 1.4)
     oauth (0.5.8)
@@ -790,6 +796,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap (~> 1.4)
   byebug (~> 11.0)
+  codecov
   decidim!
   decidim-dev!
   decidim-spam_detection!

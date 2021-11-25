@@ -9,7 +9,20 @@ module Decidim
       include Decidim::FormFactory
 
       URL = 'http://localhost:8080/api'
-      PUBLICY_SEARCHABLE_COLUMNS = %i[id decidim_organization_id sign_in_count personal_url about avatar extended_data followers_count following_count invitations_count failed_attempts admin].freeze
+      PUBLICY_SEARCHABLE_COLUMNS = [
+        :id,
+        :decidim_organization_id,
+        :sign_in_count,
+        :personal_url,
+        :about,
+        :avatar,
+        :extended_data,
+        :followers_count,
+        :following_count,
+        :invitations_count,
+        :failed_attempts,
+        :admin
+      ].freeze
 
       SPAM_LEVEL = { very_sure: 0.99, probable: 0.7 }.freeze
 
@@ -69,18 +82,26 @@ module Decidim
       end
 
       def report_user(user)
+        user = Decidim::User.find(user["id"])
+        admin = moderation_user_for(user)
+
         form = form(Decidim::ReportForm).from_params(
           reason: 'spam',
           details: 'The user was marked at spam by Decidim spam detection bot'
         )
 
-        Decidim::CreateUserReport.call(form, Decidim::User.find(user["id"]), moderation_user)
+        report = Decidim::CreateUserReport
+        report.define_method(:current_organization) { admin.organization }
+        report.define_method(:current_user) { admin }
+        report.define_method(:reportable) { user }
+        report.call(form, user, admin)
+
         Rails.logger.info("User with id #{user["id"]} was reported for spam")
       end
 
       # A user is needed to mark a user as spammy, need to find another way later
-      def moderation_user
-        @moderation_user ||= Decidim::User.where(admin: true).first
+      def moderation_user_for(user)
+        Decidim::User.where(admin: true, organization: user.organization).first
       end
     end
   end
