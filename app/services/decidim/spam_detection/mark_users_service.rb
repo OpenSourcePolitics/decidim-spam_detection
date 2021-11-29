@@ -57,6 +57,7 @@ module Decidim
       end
 
       def send_request_to_api(data)
+        retries = [3, 5, 10]
         url = URI(URL)
         http = Net::HTTP.new(url.host, url.port)
         request = Net::HTTP::Post.new(url)
@@ -65,6 +66,12 @@ module Decidim
         http.use_ssl = true if use_ssl?(url)
         response = http.request(request)
         response.read_body
+      rescue Net::ReadTimeout
+        raise Net::ReadTimeout if retries.empty?
+
+        sleep retries.first
+        retries.shift
+        retry
       end
 
       def mark_spam_users(probability_array)
