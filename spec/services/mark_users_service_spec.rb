@@ -209,6 +209,22 @@ module Decidim
           end
         end
       end
+
+      describe "#use_ssl?" do
+        let(:url) { URI("http://something.example.org") }
+
+        context "when scheme is https" do
+          let(:url) { URI("https://something.example.org") }
+
+          it "returns true" do
+            expect(subject.use_ssl?(url)).to eq(true)
+          end
+        end
+
+        it "returns false" do
+          expect(subject.use_ssl?(url)).to eq(false)
+        end
+      end
     end
   end
 end

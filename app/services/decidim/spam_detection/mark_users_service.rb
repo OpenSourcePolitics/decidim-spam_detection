@@ -62,6 +62,7 @@ module Decidim
         request = Net::HTTP::Post.new(url)
         request["Content-Type"] = "application/json"
         request.body = JSON.dump(data)
+        http.use_ssl = true if use_ssl?(url)
         response = http.request(request)
         response.read_body
       end
@@ -152,6 +153,10 @@ module Decidim
 
       def perform_block_user?
         ENV.fetch("PERFORM_BLOCK_USER", false)
+      end
+
+      def use_ssl?(url)
+        url.scheme == "https"
       end
     end
   end
