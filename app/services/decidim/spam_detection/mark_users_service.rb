@@ -67,18 +67,18 @@ module Decidim
         response.read_body
       end
 
-      def mark_spam_users(spam_probability_users_array)
-        spam_probability_users_array.each do |spam_probability_hash|
-          if spam_probability_hash["spam_probability"] > SPAM_LEVEL[:very_sure] && perform_block_user?
-            block_user(spam_probability_hash)
-          elsif spam_probability_hash["spam_probability"] > SPAM_LEVEL[:probable]
-            report_user(spam_probability_hash)
+      def mark_spam_users(probability_array)
+        probability_array.each do |probability_hash|
+          if probability_hash["spam_probability"] > SPAM_LEVEL[:very_sure] && perform_block_user?
+            block_user(probability_hash)
+          elsif probability_hash["spam_probability"] > SPAM_LEVEL[:probable]
+            report_user(probability_hash)
           end
         end
       end
 
-      def block_user(spam_probability_hash)
-        user = spam_probability_hash["original_user"]
+      def block_user(probability_hash)
+        user = probability_hash["original_user"]
         admin = moderation_user_for(user)
 
         form = form(Decidim::Admin::BlockUserForm).from_params(
@@ -93,8 +93,8 @@ module Decidim
         Rails.logger.info("User with id #{user["id"]} was blocked for spam")
       end
 
-      def report_user(spam_probability_hash)
-        user = spam_probability_hash["original_user"]
+      def report_user(probability_hash)
+        user = probability_hash["original_user"]
         admin = moderation_user_for(user)
 
         form = form(Decidim::ReportForm).from_params(
