@@ -1,22 +1,40 @@
 # frozen_string_literal: true
 
-require 'uri'
-require 'net/http'
+require "uri"
+require "net/http"
 
 module Decidim
   module SpamDetection
     class MarkUsersService
       include Decidim::FormFactory
 
-      URL = 'http://localhost:8080/api'
-      PUBLICY_SEARCHABLE_COLUMNS = %i[id decidim_organization_id sign_in_count personal_url about avatar extended_data followers_count following_count invitations_count failed_attempts admin].freeze
+      URL = ENV.fetch("SPAM_DETECTION_API_URL", "http://localhost:8080/api")
+      SPAM_USER = {
+        name: ENV.fetch("SPAM_DETECTION_NAME", "spam detection bot"),
+        nickname: ENV.fetch("SPAM_DETECTION_NICKNAME", "Spam_detection_bot"),
+        email: ENV.fetch("SPAM_DETECTION_EMAIL", "spam_detection_bot@opensourcepolitcs.eu")
+      }.freeze
+      PUBLICY_SEARCHABLE_COLUMNS = [
+        :id,
+        :decidim_organization_id,
+        :sign_in_count,
+        :personal_url,
+        :about,
+        :avatar,
+        :extended_data,
+        :followers_count,
+        :following_count,
+        :invitations_count,
+        :failed_attempts,
+        :admin
+      ].freeze
 
       SPAM_LEVEL = { very_sure: 0.99, probable: 0.7 }.freeze
 
       def initialize
-        @users = Decidim::User.where(admin: false)
-                              .select(PUBLICY_SEARCHABLE_COLUMNS)
-                              .map { |u| u.serializable_hash(force_except: true) }
+        @users = Decidim::User.left_outer_joins(:user_moderation)
+                              .where(decidim_user_moderations: { decidim_user_id: nil })
+                              .where(admin: false, blocked: false)
       end
 
       def self.run
@@ -24,9 +42,9 @@ module Decidim
       end
 
       def ask_and_mark
-        spam_probability_array = send_request_in_batch(@users)
+        spam_probability_array = send_request_in_batch(cleaned_users)
 
-        mark_spam_users(spam_probability_array)
+        mark_spam_users(merge_response_with_users(spam_probability_array))
       end
 
       def send_request_in_batch(data_array, batch_size = 1000)
@@ -42,45 +60,103 @@ module Decidim
         url = URI(URL)
         http = Net::HTTP.new(url.host, url.port)
         request = Net::HTTP::Post.new(url)
-        request['Content-Type'] = 'application/json'
+        request["Content-Type"] = "application/json"
         request.body = JSON.dump(data)
+        http.use_ssl = true if use_ssl?(url)
         response = http.request(request)
         response.read_body
       end
 
-      def mark_spam_users(users_array)
-        users_array.each do |user|
-          if user['spam_probability'] > SPAM_LEVEL[:very_sure]
-            block_user(user)
-          elsif user['spam_probability'] > SPAM_LEVEL[:probable]
-            report_user(user)
+      def mark_spam_users(spam_probability_users_array)
+        spam_probability_users_array.each do |spam_probability_hash|
+          if spam_probability_hash["spam_probability"] > SPAM_LEVEL[:very_sure] && perform_block_user?
+            block_user(spam_probability_hash)
+          elsif spam_probability_hash["spam_probability"] > SPAM_LEVEL[:probable]
+            report_user(spam_probability_hash)
           end
         end
       end
 
-      def block_user(user)
+      def block_user(spam_probability_hash)
+        user = spam_probability_hash["original_user"]
+        admin = moderation_user_for(user)
+
         form = form(Decidim::Admin::BlockUserForm).from_params(
-          user_id: user["id"],
-          justification: 'The user was blocked because of a high spam probability by Decidim spam detection bot'
+          justification: "The user was blocked because of a high spam probability by Decidim spam detection bot"
         )
+
+        form.define_singleton_method(:user) { user }
+        form.define_singleton_method(:current_user) { admin }
+        form.define_singleton_method(:blocking_user) { admin }
 
         Decidim::Admin::BlockUser.call(form)
         Rails.logger.info("User with id #{user["id"]} was blocked for spam")
       end
 
-      def report_user(user)
+      def report_user(spam_probability_hash)
+        user = spam_probability_hash["original_user"]
+        admin = moderation_user_for(user)
+
         form = form(Decidim::ReportForm).from_params(
-          reason: 'spam',
-          details: 'The user was marked at spam by Decidim spam detection bot'
+          reason: "spam",
+          details: "The user was marked at spam by Decidim spam detection bot"
         )
 
-        Decidim::CreateUserReport.call(form, Decidim::User.find(user["id"]), moderation_user)
-        Rails.logger.info("User with id #{user["id"]} was reported for spam")
+        report = Decidim::CreateUserReport.new(form, user, admin)
+        report.define_singleton_method(:current_organization) { admin.organization }
+        report.define_singleton_method(:current_user) { admin }
+        report.define_singleton_method(:reportable) { user }
+        report.call
+
+        Rails.logger.info("User with id #{user.id} was reported for spam")
       end
 
-      # A user is needed to mark a user as spammy, need to find another way later
-      def moderation_user
-        @moderation_user ||= Decidim::User.where(admin: true).first
+      def moderation_user_for(user)
+        moderation_admin_params = {
+          name: SPAM_USER[:name],
+          nickname: SPAM_USER[:nickname],
+          email: SPAM_USER[:email],
+          admin: true,
+          organization: user.organization
+        }
+
+        moderation_admin = Decidim::User.find_by(moderation_admin_params)
+
+        return moderation_admin unless moderation_admin.nil?
+
+        create_moderation_admin(moderation_admin_params)
+      end
+
+      def create_moderation_admin(params)
+        password = ::Devise.friendly_token(::Devise.password_length.last)
+        additional_params = {
+          password: password,
+          password_confirmation: password,
+          tos_agreement: true,
+          email_on_notification: false,
+          email_on_moderations: false
+        }
+        moderation_admin = Decidim::User.new(params.merge(additional_params))
+        moderation_admin.skip_confirmation!
+        moderation_admin.save
+        moderation_admin
+      end
+
+      def cleaned_users
+        @cleaned_users ||= @users.select(PUBLICY_SEARCHABLE_COLUMNS)
+                                 .map { |u| u.serializable_hash(force_except: true) }
+      end
+
+      def merge_response_with_users(response)
+        response.map { |resp| resp.merge("original_user" => @users.find(resp["id"])) }
+      end
+
+      def perform_block_user?
+        ENV.fetch("PERFORM_BLOCK_USER", false)
+      end
+
+      def use_ssl?(url)
+        url.scheme == "https"
       end
     end
   end
