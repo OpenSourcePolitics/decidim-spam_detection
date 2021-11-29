@@ -66,15 +66,12 @@ module Decidim
         http.use_ssl = true if use_ssl?(url)
         response = http.request(request)
         response.read_body
-
       rescue Net::ReadTimeout
-        if !retries.empty?
-          sleep retries.first
-          retries.shift
-          retry
-        else
-          raise Net::ReadTimeout
-        end
+        raise Net::ReadTimeout if retries.empty?
+
+        sleep retries.first
+        retries.shift
+        retry
       end
 
       def mark_spam_users(spam_probability_users_array)
