@@ -105,6 +105,7 @@ module Decidim
                                        "spam_probability" => probability_hash["spam_probability"]
                                      })
 
+        user.create_user_moderation
         Rails.logger.info("User with id #{user["id"]} was blocked for spam")
       end
 

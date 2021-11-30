@@ -93,8 +93,12 @@ module Decidim
       end
 
       describe "#block_user" do
-        it "reports the user" do
+        it "blocks the user" do
           expect { subject.block_user(user_hash) }.to change(Decidim::UserBlock, :count)
+        end
+
+        it "create a moderation entry" do
+          expect { subject.block_user(user_hash) }.to change(Decidim::UserModeration, :count)
         end
 
         describe "spam detection metadata" do
