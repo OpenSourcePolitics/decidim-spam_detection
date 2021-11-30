@@ -67,7 +67,7 @@ FactoryBot.modify do
       after(:build) do |user|
         user.extended_data = user.extended_data
                                  .dup
-                                 .deep_merge({ "spam_detection": { "marked_as_spam_at": Time.zone.now - 1.day } })
+                                 .deep_merge({ "spam_detection": { "reported_at": Time.zone.now - 1.day } })
       end
     end
 
@@ -83,7 +83,7 @@ FactoryBot.modify do
       after(:build) do |user|
         user.extended_data = user.extended_data
                                  .dup
-                                 .deep_merge({ "spam_detection": { "blocked_as_spam_at": Time.zone.now - 1.day } })
+                                 .deep_merge({ "spam_detection": { "blocked_at": Time.zone.now - 1.day } })
       end
     end
 

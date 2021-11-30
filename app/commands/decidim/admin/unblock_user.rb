@@ -46,7 +46,7 @@ module Decidim
       end
 
       def add_spam_detection_metadata!
-        return if @blocked_user.extended_data.dig("spam_detection", "blocked_as_spam_at").blank?
+        return if @blocked_user.extended_data.dig("spam_detection", "blocked_at").blank?
 
         @blocked_user.update!(extended_data: @blocked_user.extended_data.dup.deep_merge("spam_detection" => { "unblocked_at": Time.current }))
       end

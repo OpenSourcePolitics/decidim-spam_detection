@@ -101,7 +101,7 @@ module Decidim
         Decidim::Admin::BlockUser.call(form)
 
         add_spam_detection_metadata!(user, {
-                                       "blocked_as_spam_at" => Time.current,
+                                       "blocked_at" => Time.current,
                                        "spam_probability" => probability_hash["spam_probability"]
                                      })
 
@@ -126,7 +126,7 @@ module Decidim
         report.call
 
         add_spam_detection_metadata!(user, {
-                                       "marked_as_spam_at" => Time.current,
+                                       "reported_at" => Time.current,
                                        "spam_probability" => probability_hash["spam_probability"]
                                      })
 

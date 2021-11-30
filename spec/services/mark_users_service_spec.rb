@@ -78,7 +78,7 @@ module Decidim
           end
 
           it "add spam detection metadata" do
-            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "marked_as_spam_at")).not_to eq(nil)
+            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "reported_at")).not_to eq(nil)
             expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.88)
           end
         end
@@ -105,7 +105,7 @@ module Decidim
           end
 
           it "add spam detection metadata" do
-            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "blocked_as_spam_at")).not_to eq(nil)
+            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "blocked_at")).not_to eq(nil)
             expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.999)
           end
         end
