@@ -82,6 +82,14 @@ module Decidim
             expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.88)
           end
         end
+
+        context "when users have already been reported in the past" do
+          let!(:users) { create_list(:user, 5, :unmarked_as_spam, organization: organization) }
+
+          it "doesn't reports the user" do
+            expect { subject.report_user(user_hash) }.not_to change(Decidim::UserBlock, :count)
+          end
+        end
       end
 
       describe "#block_user" do
@@ -99,6 +107,14 @@ module Decidim
           it "add spam detection metadata" do
             expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "blocked_as_spam_at")).not_to eq(nil)
             expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.999)
+          end
+        end
+
+        context "when users have already been blocked in the past" do
+          let!(:users) { create_list(:user, 5, :unblocked_as_spam, organization: organization) }
+
+          it "doesn't reports the user" do
+            expect { subject.block_user(user_hash) }.not_to change(Decidim::UserBlock, :count)
           end
         end
       end

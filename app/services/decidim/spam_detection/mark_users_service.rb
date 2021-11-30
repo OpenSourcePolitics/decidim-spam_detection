@@ -86,6 +86,8 @@ module Decidim
 
       def block_user(probability_hash)
         user = probability_hash["original_user"]
+        return if previously_unblocked?(user)
+
         admin = moderation_user_for(user)
 
         form = form(Decidim::Admin::BlockUserForm).from_params(
@@ -99,15 +101,17 @@ module Decidim
         Decidim::Admin::BlockUser.call(form)
 
         add_spam_detection_metadata!(user, {
-          "blocked_as_spam_at" => Time.current,
-          "spam_probability" => probability_hash["spam_probability"]
-        })
+                                       "blocked_as_spam_at" => Time.current,
+                                       "spam_probability" => probability_hash["spam_probability"]
+                                     })
 
         Rails.logger.info("User with id #{user["id"]} was blocked for spam")
       end
 
       def report_user(probability_hash)
         user = probability_hash["original_user"]
+        return if previously_unmarked?(user)
+
         admin = moderation_user_for(user)
 
         form = form(Decidim::ReportForm).from_params(
@@ -122,9 +126,9 @@ module Decidim
         report.call
 
         add_spam_detection_metadata!(user, {
-          "marked_as_spam_at" => Time.current,
-          "spam_probability" => probability_hash["spam_probability"]
-        })
+                                       "marked_as_spam_at" => Time.current,
+                                       "spam_probability" => probability_hash["spam_probability"]
+                                     })
 
         Rails.logger.info("User with id #{user.id} was reported for spam")
       end
@@ -180,8 +184,15 @@ module Decidim
       def add_spam_detection_metadata!(user, metadata)
         user.update!(extended_data: user.extended_data
                                         .dup
-                                        .deep_merge("spam_detection" => metadata)
-        )
+                                        .deep_merge("spam_detection" => metadata))
+      end
+
+      def previously_unblocked?(user)
+        user.extended_data.dig("spam_detection", "unblocked_at").present?
+      end
+
+      def previously_unmarked?(user)
+        user.extended_data.dig("spam_detection", "unreported_at").present?
       end
     end
   end
