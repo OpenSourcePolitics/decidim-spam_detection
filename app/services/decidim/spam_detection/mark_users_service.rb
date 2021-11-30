@@ -97,6 +97,7 @@ module Decidim
         form.define_singleton_method(:blocking_user) { admin }
 
         Decidim::Admin::BlockUser.call(form)
+        user.create_user_moderation
         Rails.logger.info("User with id #{user["id"]} was blocked for spam")
       end
 
