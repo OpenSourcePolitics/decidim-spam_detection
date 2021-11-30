@@ -69,6 +69,27 @@ module Decidim
         it "reports the user" do
           expect { subject.report_user(user_hash) }.to change(Decidim::UserReport, :count)
         end
+
+        describe "spam detection metadata" do
+          let(:spam_probabilty) { 0.88 }
+
+          before do
+            subject.report_user(user_hash.merge("spam_probability" => spam_probabilty))
+          end
+
+          it "add spam detection metadata" do
+            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "reported_at")).not_to eq(nil)
+            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.88)
+          end
+        end
+
+        context "when users have already been reported in the past" do
+          let!(:users) { create_list(:user, 5, :unmarked_as_spam, organization: organization) }
+
+          it "doesn't reports the user" do
+            expect { subject.report_user(user_hash) }.not_to change(Decidim::UserBlock, :count)
+          end
+        end
       end
 
       describe "#block_user" do
@@ -78,6 +99,27 @@ module Decidim
 
         it "create a moderation entry" do
           expect { subject.block_user(user_hash) }.to change(Decidim::UserModeration, :count)
+        end
+
+        describe "spam detection metadata" do
+          let(:spam_probabilty) { 0.999 }
+
+          before do
+            subject.block_user(user_hash.merge("spam_probability" => spam_probabilty))
+          end
+
+          it "add spam detection metadata" do
+            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "blocked_at")).not_to eq(nil)
+            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.999)
+          end
+        end
+
+        context "when users have already been blocked in the past" do
+          let!(:users) { create_list(:user, 5, :unblocked_as_spam, organization: organization) }
+
+          it "doesn't reports the user" do
+            expect { subject.block_user(user_hash) }.not_to change(Decidim::UserBlock, :count)
+          end
         end
       end
 
