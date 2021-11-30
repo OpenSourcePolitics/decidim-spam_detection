@@ -69,11 +69,37 @@ module Decidim
         it "reports the user" do
           expect { subject.report_user(user_hash) }.to change(Decidim::UserReport, :count)
         end
+
+        describe "spam detection metadata" do
+          let(:spam_probabilty) { 0.88 }
+
+          before do
+            subject.report_user(user_hash.merge("spam_probability" => spam_probabilty))
+          end
+
+          it "add spam detection metadata" do
+            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "marked_as_spam_at")).not_to eq(nil)
+            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.88)
+          end
+        end
       end
 
       describe "#block_user" do
         it "reports the user" do
           expect { subject.block_user(user_hash) }.to change(Decidim::UserBlock, :count)
+        end
+
+        describe "spam detection metadata" do
+          let(:spam_probabilty) { 0.999 }
+
+          before do
+            subject.block_user(user_hash.merge("spam_probability" => spam_probabilty))
+          end
+
+          it "add spam detection metadata" do
+            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "blocked_as_spam_at")).not_to eq(nil)
+            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.999)
+          end
         end
       end
 

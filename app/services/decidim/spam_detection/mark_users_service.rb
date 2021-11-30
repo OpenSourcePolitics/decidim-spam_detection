@@ -97,6 +97,12 @@ module Decidim
         form.define_singleton_method(:blocking_user) { admin }
 
         Decidim::Admin::BlockUser.call(form)
+
+        add_spam_detection_metadata!(user, {
+          "blocked_as_spam_at" => Time.current,
+          "spam_probability" => probability_hash["spam_probability"]
+        })
+
         Rails.logger.info("User with id #{user["id"]} was blocked for spam")
       end
 
@@ -114,6 +120,11 @@ module Decidim
         report.define_singleton_method(:current_user) { admin }
         report.define_singleton_method(:reportable) { user }
         report.call
+
+        add_spam_detection_metadata!(user, {
+          "marked_as_spam_at" => Time.current,
+          "spam_probability" => probability_hash["spam_probability"]
+        })
 
         Rails.logger.info("User with id #{user.id} was reported for spam")
       end
@@ -164,6 +175,13 @@ module Decidim
 
       def use_ssl?(url)
         url.scheme == "https"
+      end
+
+      def add_spam_detection_metadata!(user, metadata)
+        user.update!(extended_data: user.extended_data
+                                        .dup
+                                        .deep_merge("spam_detection" => metadata)
+        )
       end
     end
   end
