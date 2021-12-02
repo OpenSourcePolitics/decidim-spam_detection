@@ -9,6 +9,7 @@ module Decidim
       include Decidim::FormFactory
 
       URL = ENV.fetch("SPAM_DETECTION_API_URL", "http://localhost:8080/api")
+      AUTH_TOKEN = ENV.fetch("SPAM_DETECTION_API_AUTH_TOKEN", "dummy")
       SPAM_USER = {
         name: ENV.fetch("SPAM_DETECTION_NAME", "spam detection bot"),
         nickname: ENV.fetch("SPAM_DETECTION_NICKNAME", "Spam_detection_bot"),
@@ -62,6 +63,7 @@ module Decidim
         http = Net::HTTP.new(url.host, url.port)
         request = Net::HTTP::Post.new(url)
         request["Content-Type"] = "application/json"
+        request["AUTH_TOKEN"] = AUTH_TOKEN
         request.body = JSON.dump(data)
         http.use_ssl = true if use_ssl?(url)
         response = http.request(request)
