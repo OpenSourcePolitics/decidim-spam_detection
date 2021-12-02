@@ -35,6 +35,9 @@ if you are using sidekiq scheduler you can use the following configuration:
 ### Further configuration
 list of env var, default value and their usage:
 ```
+SPAM_DETECTION_API_AUTH_TOKEN
+    default_value: dummy
+    usage: Token auth for authentication used by external service, ask us for more details
 SPAM_DETECTION_API_URL 
     default_value: "http://localhost:8080/api"
     usage: URL of the external service
