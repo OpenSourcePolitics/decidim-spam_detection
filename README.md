@@ -25,6 +25,11 @@ bundle exec rake decidim:spam_detection:mark_users
 
 if you are using sidekiq scheduler you can use the following configuration:
 ```
+:queues:
+- user_report
+- block_user
+- scheduled
+
 :schedule:
     DetectSpamUsers:
     cron: '0 0 8 * * *' # Run at 08:00
