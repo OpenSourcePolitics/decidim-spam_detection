@@ -26,7 +26,7 @@ module Decidim
         end
 
         context "when user is already blocked" do
-          let!(:already_blocked_user) { create(:user, blocked: true, organization: organization) }
+          let!(:already_blocked_user) { create(:user, :blocked, organization: organization) }
 
           it "is not included in the query" do
             expect(users_instance_variable.length).to eq(5)
@@ -41,6 +41,15 @@ module Decidim
           it "is not included in the query" do
             expect(users_instance_variable.length).to eq(5)
             expect(users_instance_variable).not_to include(already_moderated_user)
+          end
+        end
+
+        context "when user has deleted his account" do
+          let!(:already_deleted_user) { create(:user, :deleted, organization: organization) }
+
+          it "is not included in the query" do
+            expect(users_instance_variable.length).to eq(5)
+            expect(users_instance_variable).not_to include(already_deleted_user)
           end
         end
       end
