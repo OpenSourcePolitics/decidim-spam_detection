@@ -10,11 +10,13 @@ module Decidim
 
       URL = ENV.fetch("SPAM_DETECTION_API_URL", "http://localhost:8080/api")
       AUTH_TOKEN = ENV.fetch("SPAM_DETECTION_API_AUTH_TOKEN", "dummy")
+
       SPAM_USER = {
         name: ENV.fetch("SPAM_DETECTION_NAME", "spam detection bot"),
         nickname: ENV.fetch("SPAM_DETECTION_NICKNAME", "Spam_detection_bot"),
         email: ENV.fetch("SPAM_DETECTION_EMAIL", "spam_detection_bot@opensourcepolitcs.eu")
       }.freeze
+
       PUBLICY_SEARCHABLE_COLUMNS = [
         :id,
         :decidim_organization_id,
@@ -35,7 +37,7 @@ module Decidim
       def initialize
         @users = Decidim::User.left_outer_joins(:user_moderation)
                               .where(decidim_user_moderations: { decidim_user_id: nil })
-                              .where(admin: false, blocked: false)
+                              .where(admin: false, blocked: false, deleted_at: nil)
       end
 
       def self.run
