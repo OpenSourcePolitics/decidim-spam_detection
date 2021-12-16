@@ -119,7 +119,7 @@ module Decidim
 
         form = form(Decidim::ReportForm).from_params(
           reason: "spam",
-          details: "The user was marked at spam by Decidim spam detection bot"
+          details: "The user was marked as spam by Decidim spam detection bot"
         )
 
         report = Decidim::CreateUserReport.new(form, user, admin)
