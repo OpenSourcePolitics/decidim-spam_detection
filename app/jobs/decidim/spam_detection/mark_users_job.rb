@@ -2,7 +2,7 @@
 
 module Decidim
   module SpamDetection
-    class MarkUsersJob < Decidim::SpamDetection::ApplicationJob
+    class MarkUsersJob < ApplicationJob
       queue_as :default
 
       def perform

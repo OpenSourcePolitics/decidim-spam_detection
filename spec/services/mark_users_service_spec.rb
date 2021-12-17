@@ -5,15 +5,14 @@ require "spec_helper"
 module Decidim
   module SpamDetection
     describe MarkUsersService do
-      let(:subject) { subject_class.new }
-      let(:subject_class) { described_class }
+      let(:subject) { described_class.new }
       let(:organization) { create(:organization) }
       let!(:users) { create_list(:user, 5, organization: organization) }
       let(:users_instance_variable) { subject.instance_variable_get(:@users) }
       let!(:admins) { create_list(:user, 5, :admin, organization: organization) }
       let(:user_hash) do
-        subject_class.merge_response_with_users(
-          subject_class.cleaned_users(users_instance_variable), users_instance_variable
+        subject.merge_response_with_users(
+          subject.cleaned_users
         ).first
       end
 
@@ -61,96 +60,38 @@ module Decidim
         end
 
         it "returns an array of hash" do
-          expect(subject_class.cleaned_users(users_instance_variable).map(&:class)).to eq([Hash] * 5)
+          expect(subject.cleaned_users.map(&:class)).to eq([Hash] * 5)
         end
 
         it "returns a hash of publicy_searchable_columns" do
-          expect(subject_class.cleaned_users(users_instance_variable).first.keys.map(&:to_sym)).to match_array(publicy_searchable_columns)
+          expect(subject.cleaned_users.first.keys.map(&:to_sym)).to match_array(publicy_searchable_columns)
         end
 
         it "doesn't include email or password" do
-          expect(subject_class.cleaned_users(users_instance_variable).select { |user_hash| user_hash["email"] }).to eq([])
-          expect(subject_class.cleaned_users(users_instance_variable).select { |user_hash| user_hash["password"] }).to eq([])
-          expect(subject_class.cleaned_users(users_instance_variable).select { |user_hash| user_hash["password_confirmation"] }).to eq([])
-        end
-      end
-
-      describe ".report_user" do
-        it "reports the user" do
-          expect { subject_class.report_user(user_hash) }.to change(Decidim::UserReport, :count)
-        end
-
-        describe "spam detection metadata" do
-          let(:spam_probabilty) { 0.88 }
-
-          before do
-            subject_class.report_user(user_hash.merge("spam_probability" => spam_probabilty))
-          end
-
-          it "add spam detection metadata" do
-            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "reported_at")).not_to eq(nil)
-            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.88)
-          end
-        end
-
-        context "when users have already been reported in the past" do
-          let!(:users) { create_list(:user, 5, :unmarked_as_spam, organization: organization) }
-
-          it "doesn't reports the user" do
-            expect { subject_class.report_user(user_hash) }.not_to change(Decidim::UserBlock, :count)
-          end
-        end
-      end
-
-      describe ".block_user" do
-        it "blocks the user" do
-          expect { subject_class.block_user(user_hash) }.to change(Decidim::UserBlock, :count)
-        end
-
-        it "create a moderation entry" do
-          expect { subject_class.block_user(user_hash) }.to change(Decidim::UserModeration, :count)
-        end
-
-        describe "spam detection metadata" do
-          let(:spam_probabilty) { 0.999 }
-
-          before do
-            subject_class.block_user(user_hash.merge("spam_probability" => spam_probabilty))
-          end
-
-          it "add spam detection metadata" do
-            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "blocked_at")).not_to eq(nil)
-            expect(user_hash["original_user"].reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.999)
-          end
-        end
-
-        context "when users have already been blocked in the past" do
-          let!(:users) { create_list(:user, 5, :unblocked_as_spam, organization: organization) }
-
-          it "doesn't reports the user" do
-            expect { subject_class.block_user(user_hash) }.not_to change(Decidim::UserBlock, :count)
-          end
+          expect(subject.cleaned_users.select { |user_hash| user_hash["email"] }).to eq([])
+          expect(subject.cleaned_users.select { |user_hash| user_hash["password"] }).to eq([])
+          expect(subject.cleaned_users.select { |user_hash| user_hash["password_confirmation"] }).to eq([])
         end
       end
 
       describe "#mark_spam_users" do
-        let(:users_array) { [user_hash.merge("spam_probability" => spam_probabilty)] }
+        let(:users_array) { [user_hash.merge("spam_probability" => spam_probability)] }
 
         context "when spam_probility is below probable" do
-          let(:spam_probabilty) { 0.1 }
+          let(:spam_probability) { 0.1 }
 
           it "does nothing" do
             instance = subject
 
-            expect(instance.class).not_to receive(:block_user).with(users_array.first)
-            expect(instance.class).not_to receive(:report_user).with(users_array.first)
+            expect(Decidim::SpamDetection::BlockUserService).not_to receive(:call).with(users.first, spam_probability)
+            expect(Decidim::SpamDetection::ReportUserService).not_to receive(:call).with(users.first, spam_probability)
 
             instance.mark_spam_users(users_array)
           end
         end
 
         context "when spam_probility is between very_sure and probable" do
-          let(:spam_probabilty) { 0.8 }
+          let(:spam_probability) { 0.8 }
 
           context "when perform_block_user is set to true" do
             before do
@@ -160,8 +101,8 @@ module Decidim
             it "calls report_user method" do
               instance = subject
 
-              expect(instance.class).not_to receive(:block_user).with(users_array.first)
-              expect(instance.class).to receive(:report_user).with(users_array.first).once
+              expect(Decidim::SpamDetection::BlockUserService).not_to receive(:call).with(users.first, spam_probability)
+              expect(Decidim::SpamDetection::ReportUserService).to receive(:call).with(users.first, spam_probability).once
 
               instance.mark_spam_users(users_array)
             end
@@ -169,7 +110,7 @@ module Decidim
         end
 
         context "when spam_probility is above very_sure" do
-          let(:spam_probabilty) { 0.999 }
+          let(:spam_probability) { 0.999 }
 
           context "when perform_block_user is set to true" do
             before do
@@ -179,8 +120,8 @@ module Decidim
             it "calls block_user method" do
               instance = subject
 
-              expect(instance.class).to receive(:block_user).with(users_array.first).once
-              expect(instance.class).not_to receive(:report_user).with(users_array.first)
+              expect(Decidim::SpamDetection::BlockUserService).to receive(:call).with(users.first, spam_probability).once
+              expect(Decidim::SpamDetection::ReportUserService).not_to receive(:call).with(users.first, spam_probability)
 
               instance.mark_spam_users(users_array)
             end
@@ -189,8 +130,8 @@ module Decidim
           it "calls report_user method" do
             instance = subject
 
-            expect(instance.class).not_to receive(:block_user).with(users_array.first)
-            expect(instance.class).to receive(:report_user).with(users_array.first).once
+            expect(Decidim::SpamDetection::BlockUserService).not_to receive(:call).with(users.first, spam_probability)
+            expect(Decidim::SpamDetection::ReportUserService).to receive(:call).with(users.first, spam_probability).once
 
             instance.mark_spam_users(users_array)
           end
@@ -198,7 +139,7 @@ module Decidim
       end
 
       describe "#send_request_to_api" do
-        let(:users_data) { subject_class.cleaned_users(users_instance_variable) }
+        let(:users_data) { subject.cleaned_users }
         let(:returned_users_data) do
           users_data.map do |user_data|
             user_data.merge("spam_proability" => Random.new.rand(100.0))
@@ -236,33 +177,12 @@ module Decidim
       end
 
       describe ".merge_response_with_users" do
-        let(:response) { subject_class.cleaned_users(users_instance_variable).map { |user| user.merge("spam_probability" => Random.new.rand(100.0)) } }
-        let(:merged_user) { subject_class.merge_response_with_users(response, users_instance_variable) }
+        let(:response) { subject.cleaned_users.map { |user| user.merge("spam_probability" => Random.new.rand(100.0)) } }
+        let(:merged_user) { subject.merge_response_with_users(response) }
 
         it "returns an array of users with spam probability" do
           expect(merged_user.first).to be_kind_of(Hash)
           expect(merged_user.first["original_user"]).to be_kind_of(Decidim::User)
-        end
-      end
-
-      describe ".moderation_user_for" do
-        it "creates the admin" do
-          expect { subject_class.moderation_user_for(users.first) }.to change(Decidim::User, :count)
-        end
-
-        context "when moderation admin exists" do
-          let!(:moderation_admin) do
-            create(:user,
-                   :admin,
-                   organization: organization,
-                   name: "spam detection bot",
-                   nickname: "Spam_detection_bot",
-                   email: "spam_detection_bot@opensourcepolitcs.eu")
-          end
-
-          it "reuses the admin" do
-            expect { subject_class.moderation_user_for(users.first) }.not_to change(Decidim::User, :count)
-          end
         end
       end
 
@@ -273,12 +193,12 @@ module Decidim
           let(:url) { URI("https://something.example.org") }
 
           it "returns true" do
-            expect(subject_class.use_ssl?(url)).to eq(true)
+            expect(subject.use_ssl?(url)).to eq(true)
           end
         end
 
         it "returns false" do
-          expect(subject_class.use_ssl?(url)).to eq(false)
+          expect(subject.use_ssl?(url)).to eq(false)
         end
       end
     end
