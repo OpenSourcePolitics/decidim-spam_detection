@@ -6,7 +6,9 @@ require "net/http"
 module Decidim
   module SpamDetection
     class MarkUsersService
-      include Decidim::FormFactory
+      class << self
+        include Decidim::FormFactory
+      end
 
       URL = ENV.fetch("SPAM_DETECTION_API_URL", "http://localhost:8080/api")
       AUTH_TOKEN = ENV.fetch("SPAM_DETECTION_API_AUTH_TOKEN", "dummy")
@@ -67,7 +69,7 @@ module Decidim
         request["Content-Type"] = "application/json"
         request["AUTH_TOKEN"] = AUTH_TOKEN
         request.body = JSON.dump(data)
-        http.use_ssl = true if use_ssl?(url)
+        http.use_ssl = true if self.class.use_ssl?(url)
         response = http.request(request)
         response.read_body
       rescue Net::ReadTimeout
@@ -81,14 +83,14 @@ module Decidim
       def mark_spam_users(probability_array)
         probability_array.each do |probability_hash|
           if probability_hash["spam_probability"] > SPAM_LEVEL[:very_sure] && perform_block_user?
-            block_user(probability_hash)
+            self.class.block_user(probability_hash)
           elsif probability_hash["spam_probability"] > SPAM_LEVEL[:probable]
-            report_user(probability_hash)
+            self.class.report_user(probability_hash)
           end
         end
       end
 
-      def block_user(probability_hash)
+      def self.block_user(probability_hash)
         user = probability_hash["original_user"]
         return if previously_unblocked?(user)
 
@@ -105,15 +107,15 @@ module Decidim
         Decidim::Admin::BlockUser.call(form)
 
         add_spam_detection_metadata!(user, {
-                                       "blocked_at" => Time.current,
-                                       "spam_probability" => probability_hash["spam_probability"]
-                                     })
+          "blocked_at" => Time.current,
+          "spam_probability" => probability_hash["spam_probability"]
+        })
 
         user.create_user_moderation
         Rails.logger.info("User with id #{user["id"]} was blocked for spam")
       end
 
-      def report_user(probability_hash)
+      def self.report_user(probability_hash)
         user = probability_hash["original_user"]
         return if previously_unmarked?(user)
 
@@ -131,14 +133,14 @@ module Decidim
         report.call
 
         add_spam_detection_metadata!(user, {
-                                       "reported_at" => Time.current,
-                                       "spam_probability" => probability_hash["spam_probability"]
-                                     })
+          "reported_at" => Time.current,
+          "spam_probability" => probability_hash["spam_probability"]
+        })
 
         Rails.logger.info("User with id #{user.id} was reported for spam")
       end
 
-      def moderation_user_for(user)
+      def self.moderation_user_for(user)
         moderation_admin_params = {
           name: SPAM_USER[:name],
           nickname: SPAM_USER[:nickname],
@@ -151,10 +153,10 @@ module Decidim
 
         return moderation_admin unless moderation_admin.nil?
 
-        create_moderation_admin(moderation_admin_params)
+        self.create_moderation_admin(moderation_admin_params)
       end
 
-      def create_moderation_admin(params)
+      def self.create_moderation_admin(params)
         password = ::Devise.friendly_token(::Devise.password_length.last)
         additional_params = {
           password: password,
@@ -169,34 +171,34 @@ module Decidim
         moderation_admin
       end
 
-      def cleaned_users
-        @cleaned_users ||= @users.select(PUBLICY_SEARCHABLE_COLUMNS)
-                                 .map { |u| u.serializable_hash(force_except: true) }
+      def self.cleaned_users(users)
+        users.select(PUBLICY_SEARCHABLE_COLUMNS)
+             .map { |u| u.serializable_hash(force_except: true) }
       end
 
-      def merge_response_with_users(response)
-        response.map { |resp| resp.merge("original_user" => @users.find(resp["id"])) }
+      def self.merge_response_with_users(response, users)
+        response.map { |resp| resp.merge("original_user" => users.find(resp["id"])) }
       end
 
       def perform_block_user?
         ENV.fetch("PERFORM_BLOCK_USER", false)
       end
 
-      def use_ssl?(url)
+      def self.use_ssl?(url)
         url.scheme == "https"
       end
 
-      def add_spam_detection_metadata!(user, metadata)
+      def self.add_spam_detection_metadata!(user, metadata)
         user.update!(extended_data: user.extended_data
                                         .dup
                                         .deep_merge("spam_detection" => metadata))
       end
 
-      def previously_unblocked?(user)
+      def self.previously_unblocked?(user)
         user.extended_data.dig("spam_detection", "unblocked_at").present?
       end
 
-      def previously_unmarked?(user)
+      def self.previously_unmarked?(user)
         user.extended_data.dig("spam_detection", "unreported_at").present?
       end
     end
