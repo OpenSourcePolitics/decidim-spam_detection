@@ -25,14 +25,6 @@ module Decidim
           expect(user.reload.extended_data.dig("spam_detection", "blocked_at")).not_to eq(nil)
           expect(user.reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.1)
         end
-
-        context "when users have already been blocked in the past" do
-          let!(:user) { create(:user, :unblocked_as_spam, organization: organization) }
-
-          it "doesn't reports the user" do
-            expect { subject }.not_to change(Decidim::UserBlock, :count)
-          end
-        end
       end
     end
   end

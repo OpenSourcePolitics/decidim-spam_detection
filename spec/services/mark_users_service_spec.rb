@@ -52,6 +52,24 @@ module Decidim
             expect(users_instance_variable).not_to include(already_deleted_user)
           end
         end
+
+        context "when users has been unreported" do
+          let!(:unreported_user) { create(:user, :unmarked_as_spam, organization: organization) }
+
+          it "is not included in the query" do
+            expect(users_instance_variable.length).to eq(5)
+            expect(users_instance_variable).not_to include(unreported_user)
+          end
+        end
+
+        context "when users has been unblocked" do
+          let!(:unblocked_user) { create(:user, :unblocked_as_spam, organization: organization) }
+
+          it "is not included in the query" do
+            expect(users_instance_variable.length).to eq(5)
+            expect(users_instance_variable).not_to include(unblocked_user)
+          end
+        end
       end
 
       describe ".cleaned_users" do

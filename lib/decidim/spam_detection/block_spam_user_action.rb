@@ -7,8 +7,6 @@ module Decidim
   module SpamDetection
     class BlockSpamUserAction < Decidim::SpamDetection::AbstractSpamUserAction
       def run
-        return if previously_unblocked?
-
         form = form(Decidim::Admin::BlockUserForm).from_params(
           justification: "The user was blocked because of a high spam probability by Decidim spam detection bot"
         )
@@ -29,12 +27,6 @@ module Decidim
 
         @user.create_user_moderation
         Rails.logger.info("User with id #{@user["id"]} was blocked for spam")
-      end
-
-      private
-
-      def previously_unblocked?
-        @user.extended_data.dig("spam_detection", "unblocked_at").present?
       end
     end
   end

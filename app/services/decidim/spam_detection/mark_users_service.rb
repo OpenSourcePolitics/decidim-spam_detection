@@ -25,6 +25,8 @@ module Decidim
         @users = Decidim::User.left_outer_joins(:user_moderation)
                               .where(decidim_user_moderations: { decidim_user_id: nil })
                               .where(admin: false, blocked: false, deleted_at: nil)
+                              .where("(extended_data #> '{spam_detection, unreported_at}') is null")
+                              .where("(extended_data #> '{spam_detection, unblocked_at}') is null")
       end
 
       def self.run

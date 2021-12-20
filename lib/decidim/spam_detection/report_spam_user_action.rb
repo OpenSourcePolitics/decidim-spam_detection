@@ -11,8 +11,6 @@ module Decidim
       end
 
       def run
-        return if previously_unmarked?
-
         form = form(Decidim::ReportForm).from_params(
           reason: "spam",
           details: "The user was marked as spam by Decidim spam detection bot"
@@ -34,12 +32,6 @@ module Decidim
                                      })
 
         Rails.logger.info("User with id #{user.id} was reported for spam")
-      end
-
-      private
-
-      def previously_unmarked?
-        @user.extended_data.dig("spam_detection", "unreported_at").present?
       end
     end
   end
