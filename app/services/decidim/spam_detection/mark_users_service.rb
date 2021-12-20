@@ -24,8 +24,6 @@ module Decidim
         :admin
       ].freeze
 
-      SPAM_LEVEL = { very_sure: 0.99, probable: 0.7 }.freeze
-
       def initialize
         @users = Decidim::User.left_outer_joins(:user_moderation)
                               .where(decidim_user_moderations: { decidim_user_id: nil })
@@ -72,11 +70,7 @@ module Decidim
 
       def mark_spam_users(probability_array)
         probability_array.each do |probability_hash|
-          if probability_hash["spam_probability"] > SPAM_LEVEL[:very_sure] && perform_block_user?
-            Decidim::SpamDetection::BlockSpamUserAction.call(probability_hash["original_user"], probability_hash["spam_probability"])
-          elsif probability_hash["spam_probability"] > SPAM_LEVEL[:probable]
-            Decidim::SpamDetection::ReportSpamUserAction.call(probability_hash["original_user"], probability_hash["spam_probability"])
-          end
+          Decidim::SpamDetection::SpamUserActionFactory.for(probability_hash)
         end
       end
 
@@ -87,10 +81,6 @@ module Decidim
 
       def merge_response_with_users(response)
         response.map { |resp| resp.merge("original_user" => @users.find(resp["id"])) }
-      end
-
-      def perform_block_user?
-        ENV.fetch("PERFORM_BLOCK_USER", false)
       end
 
       def use_ssl?(url)

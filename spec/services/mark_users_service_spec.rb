@@ -75,66 +75,12 @@ module Decidim
       end
 
       describe "#mark_spam_users" do
-        let(:users_array) { [user_hash.merge("spam_probability" => spam_probability)] }
+        let(:users_array) { [user_hash.merge("spam_probability" => 0.99)] }
 
-        context "when spam_probility is below probable" do
-          let(:spam_probability) { 0.1 }
+        it "calls the facotry" do
+          expect(Decidim::SpamDetection::SpamUserActionFactory).to receive(:for).with(users_array.first)
 
-          it "does nothing" do
-            instance = subject
-
-            expect(Decidim::SpamDetection::BlockSpamUserAction).not_to receive(:call).with(users.first, spam_probability)
-            expect(Decidim::SpamDetection::ReportSpamUserAction).not_to receive(:call).with(users.first, spam_probability)
-
-            instance.mark_spam_users(users_array)
-          end
-        end
-
-        context "when spam_probility is between very_sure and probable" do
-          let(:spam_probability) { 0.8 }
-
-          context "when perform_block_user is set to true" do
-            before do
-              allow(subject).to receive(:perform_block_user?).and_return(true)
-            end
-
-            it "calls report_user method" do
-              instance = subject
-
-              expect(Decidim::SpamDetection::BlockSpamUserAction).not_to receive(:call).with(users.first, spam_probability)
-              expect(Decidim::SpamDetection::ReportSpamUserAction).to receive(:call).with(users.first, spam_probability).once
-
-              instance.mark_spam_users(users_array)
-            end
-          end
-        end
-
-        context "when spam_probility is above very_sure" do
-          let(:spam_probability) { 0.999 }
-
-          context "when perform_block_user is set to true" do
-            before do
-              allow(subject).to receive(:perform_block_user?).and_return(true)
-            end
-
-            it "calls block_user method" do
-              instance = subject
-
-              expect(Decidim::SpamDetection::BlockSpamUserAction).to receive(:call).with(users.first, spam_probability).once
-              expect(Decidim::SpamDetection::ReportSpamUserAction).not_to receive(:call).with(users.first, spam_probability)
-
-              instance.mark_spam_users(users_array)
-            end
-          end
-
-          it "calls report_user method" do
-            instance = subject
-
-            expect(Decidim::SpamDetection::BlockSpamUserAction).not_to receive(:call).with(users.first, spam_probability)
-            expect(Decidim::SpamDetection::ReportSpamUserAction).to receive(:call).with(users.first, spam_probability).once
-
-            instance.mark_spam_users(users_array)
-          end
+          subject.mark_spam_users(users_array)
         end
       end
 
