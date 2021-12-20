@@ -9,6 +9,7 @@ module Decidim
     class Engine < ::Rails::Engine
       isolate_namespace Decidim::SpamDetection
       config.autoload_paths += %W(#{Decidim::SpamDetection::Engine.root}/lib)
+      config.eager_load_paths += %W(#{Decidim::SpamDetection::Engine.root}/lib)
     end
   end
 end
