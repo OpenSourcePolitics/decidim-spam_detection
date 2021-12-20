@@ -6,9 +6,6 @@ require "net/http"
 module Decidim
   module SpamDetection
     class MarkUsersService
-      URL = ENV.fetch("SPAM_DETECTION_API_URL", "http://localhost:8080/api")
-      AUTH_TOKEN = ENV.fetch("SPAM_DETECTION_API_AUTH_TOKEN", "dummy")
-
       PUBLICY_SEARCHABLE_COLUMNS = [
         :id,
         :decidim_organization_id,
