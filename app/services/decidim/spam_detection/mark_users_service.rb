@@ -73,9 +73,9 @@ module Decidim
       def mark_spam_users(probability_array)
         probability_array.each do |probability_hash|
           if probability_hash["spam_probability"] > SPAM_LEVEL[:very_sure] && perform_block_user?
-            Decidim::SpamDetection::BlockUserService.call(probability_hash["original_user"], probability_hash["spam_probability"])
+            Decidim::SpamDetection::BlockSpamUserAction.call(probability_hash["original_user"], probability_hash["spam_probability"])
           elsif probability_hash["spam_probability"] > SPAM_LEVEL[:probable]
-            Decidim::SpamDetection::ReportUserService.call(probability_hash["original_user"], probability_hash["spam_probability"])
+            Decidim::SpamDetection::ReportSpamUserAction.call(probability_hash["original_user"], probability_hash["spam_probability"])
           end
         end
       end

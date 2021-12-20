@@ -83,8 +83,8 @@ module Decidim
           it "does nothing" do
             instance = subject
 
-            expect(Decidim::SpamDetection::BlockUserService).not_to receive(:call).with(users.first, spam_probability)
-            expect(Decidim::SpamDetection::ReportUserService).not_to receive(:call).with(users.first, spam_probability)
+            expect(Decidim::SpamDetection::BlockSpamUserAction).not_to receive(:call).with(users.first, spam_probability)
+            expect(Decidim::SpamDetection::ReportSpamUserAction).not_to receive(:call).with(users.first, spam_probability)
 
             instance.mark_spam_users(users_array)
           end
@@ -101,8 +101,8 @@ module Decidim
             it "calls report_user method" do
               instance = subject
 
-              expect(Decidim::SpamDetection::BlockUserService).not_to receive(:call).with(users.first, spam_probability)
-              expect(Decidim::SpamDetection::ReportUserService).to receive(:call).with(users.first, spam_probability).once
+              expect(Decidim::SpamDetection::BlockSpamUserAction).not_to receive(:call).with(users.first, spam_probability)
+              expect(Decidim::SpamDetection::ReportSpamUserAction).to receive(:call).with(users.first, spam_probability).once
 
               instance.mark_spam_users(users_array)
             end
@@ -120,8 +120,8 @@ module Decidim
             it "calls block_user method" do
               instance = subject
 
-              expect(Decidim::SpamDetection::BlockUserService).to receive(:call).with(users.first, spam_probability).once
-              expect(Decidim::SpamDetection::ReportUserService).not_to receive(:call).with(users.first, spam_probability)
+              expect(Decidim::SpamDetection::BlockSpamUserAction).to receive(:call).with(users.first, spam_probability).once
+              expect(Decidim::SpamDetection::ReportSpamUserAction).not_to receive(:call).with(users.first, spam_probability)
 
               instance.mark_spam_users(users_array)
             end
@@ -130,8 +130,8 @@ module Decidim
           it "calls report_user method" do
             instance = subject
 
-            expect(Decidim::SpamDetection::BlockUserService).not_to receive(:call).with(users.first, spam_probability)
-            expect(Decidim::SpamDetection::ReportUserService).to receive(:call).with(users.first, spam_probability).once
+            expect(Decidim::SpamDetection::BlockSpamUserAction).not_to receive(:call).with(users.first, spam_probability)
+            expect(Decidim::SpamDetection::ReportSpamUserAction).to receive(:call).with(users.first, spam_probability).once
 
             instance.mark_spam_users(users_array)
           end

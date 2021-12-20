@@ -4,7 +4,7 @@ require "spec_helper"
 
 module Decidim
   module SpamDetection
-    describe AbstractUserService do
+    describe AbstractSpamUserAction do
       let(:subject) { described_class.new(user, 0.0) }
       let(:organization) { create(:organization) }
       let!(:user) { create(:user, organization: organization) }

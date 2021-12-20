@@ -5,7 +5,7 @@ require "net/http"
 
 module Decidim
   module SpamDetection
-    class BlockUserService < Decidim::SpamDetection::AbstractUserService
+    class BlockSpamUserAction < Decidim::SpamDetection::AbstractSpamUserAction
       def run
         return if previously_unblocked?
 
