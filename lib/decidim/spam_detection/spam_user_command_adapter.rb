@@ -18,9 +18,11 @@ module Decidim
       def call
         if @probability > SPAM_LEVEL[:very_sure] && self.class.perform_block_user?
           Decidim::SpamDetection::BlockSpamUserCommand.call(@user, @probability)
+
           :blocked_user
         elsif @probability > SPAM_LEVEL[:probable]
           Decidim::SpamDetection::ReportSpamUserCommand.call(@user, @probability)
+
           :reported_user
         else
           :nothing

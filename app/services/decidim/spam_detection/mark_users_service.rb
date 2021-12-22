@@ -27,6 +27,7 @@ module Decidim
                               .where(admin: false, blocked: false, deleted_at: nil)
                               .where("(extended_data #> '{spam_detection, unreported_at}') is null")
                               .where("(extended_data #> '{spam_detection, unblocked_at}') is null")
+        @results = []
       end
 
       def self.call
@@ -41,7 +42,7 @@ module Decidim
 
       def mark_spam_users(probability_array)
         probability_array.each do |probability_hash|
-          Decidim::SpamDetection::SpamUserCommandAdapter.call(probability_hash)
+          @results << Decidim::SpamDetection::SpamUserCommandAdapter.call(probability_hash).result
         end
       end
 
@@ -52,6 +53,10 @@ module Decidim
 
       def merge_response_with_users(response)
         response.map { |resp| resp.merge("original_user" => @users.find(resp["id"])) }
+      end
+
+      def status
+        @results.tally
       end
     end
   end
