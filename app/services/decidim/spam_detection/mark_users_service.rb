@@ -29,7 +29,7 @@ module Decidim
                               .where("(extended_data #> '{spam_detection, unblocked_at}') is null")
       end
 
-      def self.run
+      def self.call
         new.ask_and_mark
       end
 

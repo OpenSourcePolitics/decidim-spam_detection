@@ -6,7 +6,7 @@ require "net/http"
 module Decidim
   module SpamDetection
     class BlockSpamUserCommand < Decidim::SpamDetection::AbstractSpamUserCommand
-      def run
+      def call
         form = form(Decidim::Admin::BlockUserForm).from_params(
           justification: "The user was blocked because of a high spam probability by Decidim spam detection bot"
         )

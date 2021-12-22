@@ -6,7 +6,7 @@ module Decidim
       queue_as :default
 
       def perform
-        mark_users_service.run
+        mark_users_service.call
       end
 
       private

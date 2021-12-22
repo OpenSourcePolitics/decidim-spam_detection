@@ -10,7 +10,7 @@ module Decidim
       let!(:user) { create(:user, organization: organization) }
       let(:spam_probabilty) { 0.1 }
 
-      describe "#run" do
+      describe "#call" do
         it "blocks the user" do
           expect { subject }.to change(Decidim::UserBlock, :count)
         end
