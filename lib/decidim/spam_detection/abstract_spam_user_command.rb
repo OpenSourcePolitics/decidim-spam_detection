@@ -14,10 +14,6 @@ module Decidim
 
       include Decidim::FormFactory
 
-      def call
-        raise NotImplementedError
-      end
-
       def initialize(user, probability)
         @user = user
         @probability = probability
@@ -26,6 +22,10 @@ module Decidim
 
       def self.call(user, probability)
         new(user, probability).call
+      end
+
+      def call
+        raise NotImplementedError
       end
 
       def moderation_user

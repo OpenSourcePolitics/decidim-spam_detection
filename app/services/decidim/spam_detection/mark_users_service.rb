@@ -41,7 +41,7 @@ module Decidim
 
       def mark_spam_users(probability_array)
         probability_array.each do |probability_hash|
-          Decidim::SpamDetection::SpamUserCommandAdapter.for(probability_hash)
+          Decidim::SpamDetection::SpamUserCommandAdapter.call(probability_hash)
         end
       end
 

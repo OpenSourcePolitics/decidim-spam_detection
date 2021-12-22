@@ -21,6 +21,14 @@ module Decidim
           expect(user.reload.extended_data.dig("spam_detection", "reported_at")).not_to eq(nil)
           expect(user.reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.1)
         end
+
+        it "runs without error" do
+          expect(subject).to be_success
+        end
+
+        it "broadcast a result" do
+          expect(subject.result).to eq(:ok)
+        end
       end
     end
   end

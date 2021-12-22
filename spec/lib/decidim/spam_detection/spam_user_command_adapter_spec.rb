@@ -17,7 +17,7 @@ module Decidim
                          .first
       end
 
-      describe ".for" do
+      describe "#call" do
         context "when spam_probility is below probable" do
           let(:spam_probability) { 0.1 }
 
@@ -25,7 +25,15 @@ module Decidim
             expect(Decidim::SpamDetection::BlockSpamUserCommand).not_to receive(:call).with(user, spam_probability)
             expect(Decidim::SpamDetection::ReportSpamUserCommand).not_to receive(:call).with(user, spam_probability)
 
-            subject.for(user_hash)
+            subject.call(user_hash)
+          end
+
+          it "runs without error" do
+            expect(subject.call(user_hash)).to be_success
+          end
+
+          it "broadcast a result" do
+            expect(subject.call(user_hash).result).to eq(:nothing)
           end
         end
 
@@ -41,7 +49,15 @@ module Decidim
               expect(Decidim::SpamDetection::BlockSpamUserCommand).not_to receive(:call).with(user, spam_probability)
               expect(Decidim::SpamDetection::ReportSpamUserCommand).to receive(:call).with(user, spam_probability).once
 
-              subject.for(user_hash)
+              subject.call(user_hash)
+            end
+
+            it "runs without error" do
+              expect(subject.call(user_hash)).to be_success
+            end
+
+            it "broadcast a result" do
+              expect(subject.call(user_hash).result).to eq(:reported_user)
             end
           end
         end
@@ -58,7 +74,15 @@ module Decidim
               expect(Decidim::SpamDetection::BlockSpamUserCommand).to receive(:call).with(user, spam_probability).once
               expect(Decidim::SpamDetection::ReportSpamUserCommand).not_to receive(:call).with(user, spam_probability)
 
-              subject.for(user_hash)
+              subject.call(user_hash)
+            end
+
+            it "runs without error" do
+              expect(subject.call(user_hash)).to be_success
+            end
+
+            it "broadcast a result" do
+              expect(subject.call(user_hash).result).to eq(:blocked_user)
             end
           end
 
@@ -66,7 +90,15 @@ module Decidim
             expect(Decidim::SpamDetection::BlockSpamUserCommand).not_to receive(:call).with(user, spam_probability)
             expect(Decidim::SpamDetection::ReportSpamUserCommand).to receive(:call).with(user, spam_probability).once
 
-            subject.for(user_hash)
+            subject.call(user_hash)
+          end
+
+          it "runs without error" do
+            expect(subject.call(user_hash)).to be_success
+          end
+
+          it "broadcast a result" do
+            expect(subject.call(user_hash).result).to eq(:reported_user)
           end
         end
       end

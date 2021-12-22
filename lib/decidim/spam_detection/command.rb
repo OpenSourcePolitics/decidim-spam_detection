@@ -1,4 +1,6 @@
-require 'decidim/spam_detection/command_errors'
+# frozen_string_literal: true
+
+require "decidim/spam_detection/command_errors"
 
 module Decidim
   module SpamDetection
@@ -16,7 +18,7 @@ module Decidim
       end
 
       def call
-        fail NotImplementedError unless defined?(super)
+        raise NotImplementedError unless defined?(super)
 
         @called = true
         @result = super
