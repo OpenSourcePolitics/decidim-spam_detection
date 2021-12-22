@@ -5,27 +5,41 @@ require "spec_helper"
 module Decidim
   module SpamDetection
     describe ApiProxy do
-      let(:subject) { described_class }
+      let(:subject) { subject_class.new(users_data, batch_size) }
+      let(:subject_class) { described_class }
       let(:organization) { create(:organization) }
       let!(:users) { create_list(:user, 5, organization: organization) }
       let(:mark_user_service) { Decidim::SpamDetection::MarkUsersService.new }
-
-      describe ".send_request_to_api" do
-        let(:users_data) { mark_user_service.cleaned_users }
-        let(:returned_users_data) do
-          users_data.map do |user_data|
-            user_data.merge("spam_proability" => Random.new.rand(100.0))
-          end
+      let(:users_data) { mark_user_service.cleaned_users }
+      let(:returned_users_data) do
+        users_data.map do |user_data|
+          user_data.merge("spam_proability" => Random.new.rand(100.0))
         end
-        let(:url) { "http://localhost:8080/api" }
+      end
+      let(:url) { "http://localhost:8080/api" }
+      let(:batch_size) { 1000 }
+      let(:request) do
+        stub_request(:post, url).with(
+          body: JSON.dump(users_data),
+          headers: {
+            "Content-Type" => "application/json"
+          }
+        )
+      end
 
+      describe "#request" do
         before do
-          stub_request(:post, url).with(
-            body: JSON.dump(users_data),
-            headers: {
-              "Content-Type" => "application/json"
-            }
-          ).to_return(body: JSON.dump(returned_users_data))
+          request.to_return(body: JSON.dump(returned_users_data))
+        end
+
+        it "initializes the api proxy" do
+          expect(Decidim::SpamDetection::ApiProxy.request(users_data, batch_size).class).to be(Array)
+        end
+      end
+
+      describe "#send_request_to_api" do
+        before do
+          request.to_return(body: JSON.dump(returned_users_data))
         end
 
         it "sends an api call" do
@@ -33,19 +47,17 @@ module Decidim
         end
       end
 
-      describe ".send_request_in_batch" do
+      describe "#send_request_in_batch" do
         let(:subdata_array) { ["foo" => "bar"] }
-        let(:data_array) { subdata_array * 5 }
-
-        before do
-          allow(subject).to receive(:send_request_to_api).with(subdata_array).and_return(JSON.dump(subdata_array))
-        end
+        let(:users_data) { subdata_array * 5 }
+        let(:batch_size) { 1 }
 
         it "concatenates the responses" do
-          response = subject.send(:send_request_in_batch, data_array, 1)
+          instance = subject
+          allow(instance).to receive(:send_request_to_api).with(subdata_array).and_return(JSON.dump(subdata_array))
 
-          expect(response).to eq(data_array)
-          expect(response.length).to eq(5)
+          expect(instance.send_request_in_batch).to eq(users_data)
+          expect(instance.send_request_in_batch.length).to eq(5)
         end
       end
 
@@ -56,12 +68,12 @@ module Decidim
           let(:url) { URI("https://something.example.org") }
 
           it "returns true" do
-            expect(subject.use_ssl?(url)).to eq(true)
+            expect(subject_class.use_ssl?(url)).to eq(true)
           end
         end
 
         it "returns false" do
-          expect(subject.use_ssl?(url)).to eq(false)
+          expect(subject_class.use_ssl?(url)).to eq(false)
         end
       end
     end
