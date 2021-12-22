@@ -20,10 +20,6 @@ module Decidim
         @moderator = moderation_user
       end
 
-      def self.call(user, probability)
-        new(user, probability).call
-      end
-
       def call
         raise NotImplementedError
       end

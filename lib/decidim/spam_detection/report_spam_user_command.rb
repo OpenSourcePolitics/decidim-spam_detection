@@ -8,10 +8,6 @@ module Decidim
     class ReportSpamUserCommand < Decidim::SpamDetection::AbstractSpamUserCommand
       prepend Decidim::SpamDetection::Command
 
-      def self.call(user, probability)
-        new(user, probability).call
-      end
-
       def call
         form = form(Decidim::ReportForm).from_params(
           reason: "spam",
