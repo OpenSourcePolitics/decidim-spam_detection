@@ -96,7 +96,7 @@ module Decidim
         let(:users_array) { [user_hash.merge("spam_probability" => 0.99)] }
 
         it "calls the facotry" do
-          expect(Decidim::SpamDetection::SpamUserActionFactory).to receive(:for).with(users_array.first)
+          expect(Decidim::SpamDetection::SpamUserCommandAdapter).to receive(:for).with(users_array.first)
 
           subject.mark_spam_users(users_array)
         end

@@ -4,7 +4,7 @@ require "spec_helper"
 
 module Decidim
   module SpamDetection
-    describe SpamUserActionFactory do
+    describe SpamUserCommandAdapter do
       let(:subject) { described_class }
       let(:organization) { create(:organization) }
       let!(:user) { create(:user, organization: organization) }
@@ -22,8 +22,8 @@ module Decidim
           let(:spam_probability) { 0.1 }
 
           it "does nothing" do
-            expect(Decidim::SpamDetection::BlockSpamUserAction).not_to receive(:call).with(user, spam_probability)
-            expect(Decidim::SpamDetection::ReportSpamUserAction).not_to receive(:call).with(user, spam_probability)
+            expect(Decidim::SpamDetection::BlockSpamUserCommand).not_to receive(:call).with(user, spam_probability)
+            expect(Decidim::SpamDetection::ReportSpamUserCommand).not_to receive(:call).with(user, spam_probability)
 
             subject.for(user_hash)
           end
@@ -38,8 +38,8 @@ module Decidim
             end
 
             it "calls report_user method" do
-              expect(Decidim::SpamDetection::BlockSpamUserAction).not_to receive(:call).with(user, spam_probability)
-              expect(Decidim::SpamDetection::ReportSpamUserAction).to receive(:call).with(user, spam_probability).once
+              expect(Decidim::SpamDetection::BlockSpamUserCommand).not_to receive(:call).with(user, spam_probability)
+              expect(Decidim::SpamDetection::ReportSpamUserCommand).to receive(:call).with(user, spam_probability).once
 
               subject.for(user_hash)
             end
@@ -55,16 +55,16 @@ module Decidim
             end
 
             it "calls block_user method" do
-              expect(Decidim::SpamDetection::BlockSpamUserAction).to receive(:call).with(user, spam_probability).once
-              expect(Decidim::SpamDetection::ReportSpamUserAction).not_to receive(:call).with(user, spam_probability)
+              expect(Decidim::SpamDetection::BlockSpamUserCommand).to receive(:call).with(user, spam_probability).once
+              expect(Decidim::SpamDetection::ReportSpamUserCommand).not_to receive(:call).with(user, spam_probability)
 
               subject.for(user_hash)
             end
           end
 
           it "calls report_user method" do
-            expect(Decidim::SpamDetection::BlockSpamUserAction).not_to receive(:call).with(user, spam_probability)
-            expect(Decidim::SpamDetection::ReportSpamUserAction).to receive(:call).with(user, spam_probability).once
+            expect(Decidim::SpamDetection::BlockSpamUserCommand).not_to receive(:call).with(user, spam_probability)
+            expect(Decidim::SpamDetection::ReportSpamUserCommand).to receive(:call).with(user, spam_probability).once
 
             subject.for(user_hash)
           end

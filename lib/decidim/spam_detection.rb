@@ -9,9 +9,9 @@ module Decidim
   # allows users to create spam_detection in a participatory space.
   module SpamDetection
     autoload :ApiProxy, "decidim/spam_detection/api_proxy"
-    autoload :AbstractSpamUserAction, "decidim/spam_detection/abstract_spam_user_action"
-    autoload :ReportSpamUserAction, "decidim/spam_detection/report_spam_user_action"
-    autoload :BlockSpamUserAction, "decidim/spam_detection/block_spam_user_action"
-    autoload :SpamUserActionFactory, "decidim/spam_detection/spam_user_action_factory"
+    autoload :AbstractSpamUserCommand, "decidim/spam_detection/abstract_spam_user_command"
+    autoload :ReportSpamUserCommand, "decidim/spam_detection/report_spam_user_command"
+    autoload :BlockSpamUserCommand, "decidim/spam_detection/block_spam_user_command"
+    autoload :SpamUserCommandAdapter, "decidim/spam_detection/spam_user_command_adapter"
   end
 end

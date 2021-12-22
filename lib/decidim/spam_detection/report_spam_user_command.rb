@@ -5,7 +5,7 @@ require "net/http"
 
 module Decidim
   module SpamDetection
-    class ReportSpamUserAction < Decidim::SpamDetection::AbstractSpamUserAction
+    class ReportSpamUserCommand < Decidim::SpamDetection::AbstractSpamUserCommand
       def self.call(user, probability)
         new(user, probability).run
       end
