@@ -38,12 +38,29 @@ module Decidim
       end
 
       describe "#send_request_to_api" do
-        before do
-          request.to_return(body: JSON.dump(returned_users_data))
+        context "when api responds in a short time" do
+          before do
+            request.to_return(body: JSON.dump(returned_users_data))
+          end
+
+          it "sends an api call" do
+            expect(subject.send_request_to_api(users_data)).to eq(JSON.dump(returned_users_data))
+          end
         end
 
-        it "sends an api call" do
-          expect(subject.send_request_to_api(users_data)).to eq(JSON.dump(returned_users_data))
+        context "when api doesn't responds in a short time" do
+          before do
+            request.to_raise(Net::ReadTimeout)
+          end
+
+          it "retries api call then raise" do
+            instance = subject
+
+            expect do
+              instance.send_request_to_api(users_data)
+              expect(instance.instance_variable_get(:@retries)).to eq([])
+            end.to raise_error(Net::ReadTimeout)
+          end
         end
       end
 

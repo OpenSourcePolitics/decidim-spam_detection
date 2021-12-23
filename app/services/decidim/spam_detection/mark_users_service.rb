@@ -35,7 +35,7 @@ module Decidim
       end
 
       def ask_and_mark
-        spam_probability_array = Decidim::SpamDetection::ApiProxy.send_request_in_batch(cleaned_users)
+        spam_probability_array = Decidim::SpamDetection::ApiProxy.request(cleaned_users)
 
         mark_spam_users(merge_response_with_users(spam_probability_array))
       end
