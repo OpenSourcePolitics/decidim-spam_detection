@@ -4,14 +4,14 @@ require "spec_helper"
 
 module Decidim
   module SpamDetection
-    describe AbstractSpamUserAction do
+    describe AbstractSpamUserCommand do
       let(:subject) { described_class.new(user, 0.0) }
       let(:organization) { create(:organization) }
       let!(:user) { create(:user, organization: organization) }
 
-      describe "#run" do
+      describe "#call" do
         it "raises an error" do
-          expect { subject.run }.to raise_error(NotImplementedError)
+          expect { subject.call }.to raise_error(NotImplementedError)
         end
       end
 

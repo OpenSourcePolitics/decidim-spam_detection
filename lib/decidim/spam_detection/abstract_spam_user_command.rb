@@ -5,7 +5,7 @@ require "net/http"
 
 module Decidim
   module SpamDetection
-    class AbstractSpamUserAction
+    class AbstractSpamUserCommand
       SPAM_USER = {
         name: ENV.fetch("SPAM_DETECTION_NAME", "spam detection bot"),
         nickname: ENV.fetch("SPAM_DETECTION_NICKNAME", "Spam_detection_bot"),
@@ -20,11 +20,7 @@ module Decidim
         @moderator = moderation_user
       end
 
-      def self.call(user, probability)
-        new(user, probability).run
-      end
-
-      def run
+      def call
         raise NotImplementedError
       end
 

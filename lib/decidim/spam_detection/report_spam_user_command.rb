@@ -5,12 +5,10 @@ require "net/http"
 
 module Decidim
   module SpamDetection
-    class ReportSpamUserAction < Decidim::SpamDetection::AbstractSpamUserAction
-      def self.call(user, probability)
-        new(user, probability).run
-      end
+    class ReportSpamUserCommand < Decidim::SpamDetection::AbstractSpamUserCommand
+      prepend Decidim::SpamDetection::Command
 
-      def run
+      def call
         form = form(Decidim::ReportForm).from_params(
           reason: "spam",
           details: "The user was marked as spam by Decidim spam detection bot"
@@ -32,6 +30,8 @@ module Decidim
                                      })
 
         Rails.logger.info("User with id #{user.id} was reported for spam")
+
+        :ok
       end
     end
   end
