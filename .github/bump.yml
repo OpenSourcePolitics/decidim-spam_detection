@@ -14,7 +14,7 @@ release:
       new-prefix: 'feature '
 branch:
   base-branch: 'master'
-  version-branch-prefix: 'v'
+  version-branch-prefix: 'release/'
   version-branch-postfix: '-stable'
   create-major-version-branch: false
   create-minor-version-branch: true
