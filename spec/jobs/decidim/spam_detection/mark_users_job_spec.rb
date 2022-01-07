@@ -6,7 +6,7 @@ describe Decidim::SpamDetection::MarkUsersJob do
   subject { described_class }
 
   it "calls the mark users service" do
-    expect(Decidim::SpamDetection::MarkUsersService).to receive(:run)
+    expect(Decidim::SpamDetection::MarkUsersService).to receive(:call)
 
     subject.perform_now
   end

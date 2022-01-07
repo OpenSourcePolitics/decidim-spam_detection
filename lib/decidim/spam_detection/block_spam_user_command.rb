@@ -5,8 +5,10 @@ require "net/http"
 
 module Decidim
   module SpamDetection
-    class BlockSpamUserAction < Decidim::SpamDetection::AbstractSpamUserAction
-      def run
+    class BlockSpamUserCommand < Decidim::SpamDetection::AbstractSpamUserCommand
+      prepend Decidim::SpamDetection::Command
+
+      def call
         form = form(Decidim::Admin::BlockUserForm).from_params(
           justification: "The user was blocked because of a high spam probability by Decidim spam detection bot"
         )
@@ -27,6 +29,8 @@ module Decidim
 
         @user.create_user_moderation
         Rails.logger.info("User with id #{@user["id"]} was blocked for spam")
+
+        :ok
       end
     end
   end
