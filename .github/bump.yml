@@ -1,6 +1,6 @@
 # config at https://github.com/MeilCli/bump-release-action/blob/master/README.md
 release:
-  title-prefix: 'release'
+  title-prefix: 'release/'
   title-postfix: '-stable'
   body-title: 'Changed'
   body-when-empty-changes: 'No changes'
