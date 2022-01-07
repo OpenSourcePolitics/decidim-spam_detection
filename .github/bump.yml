@@ -6,7 +6,7 @@ release:
   body-when-empty-changes: 'No changes'
   initial-version: '0.25.0'
   tag-prefix: 'v'
-  tag-postfix: '-stable'
+  tag-postfix: ''
   sort-by: 'note'
   sort-direction: 'ascending'
   commit-note-replacers:
