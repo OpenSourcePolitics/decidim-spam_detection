@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    decidim-spam_detection (0.25.0)
-      decidim-core (~> 0.25.0)
+    decidim-spam_detection (0.25)
+      decidim-core (~> 0.25)
 
 GEM
   remote: https://rubygems.org/
@@ -509,6 +509,8 @@ GEM
     nobspw (0.6.2)
     nokogiri (1.11.7)
       mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
+    nokogiri (1.11.7-x86_64-darwin)
       racc (~> 1.4)
     oauth (0.5.8)
     oauth2 (1.4.7)
