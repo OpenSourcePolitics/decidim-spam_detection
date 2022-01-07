@@ -3,9 +3,6 @@ name: Publish Gem
 
 on:
   push:
-    branches:
-      - "master"
-      - "main"
     tags:
       - v*
 jobs:
