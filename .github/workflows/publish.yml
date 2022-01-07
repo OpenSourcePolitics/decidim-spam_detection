@@ -1,3 +1,4 @@
+# Config at https://github.com/marketplace/actions/publish-to-rubygems
 name: Publish Gem
 
 on:
