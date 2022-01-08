@@ -4,7 +4,7 @@ release:
   title-postfix: '-stable'
   body-title: 'Changed'
   body-when-empty-changes: 'No changes'
-  initial-version: '0.25.0'
+  initial-version: '0.1.0'
   tag-prefix: 'v'
   tag-postfix: ''
   sort-by: 'note'
@@ -16,8 +16,8 @@ branch:
   base-branch: 'master'
   version-branch-prefix: 'release/'
   version-branch-postfix: '-stable'
-  create-major-version-branch: false
-  create-minor-version-branch: true
+  create-major-version-branch: true
+  create-minor-version-branch: false
   bump-version-commit-prefix: 'v'
   bump-version-commit-postfix: '-stable'
 categories:
