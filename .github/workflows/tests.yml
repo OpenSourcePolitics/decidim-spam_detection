@@ -52,7 +52,7 @@ jobs:
           if-no-files-found: ignore
   release:
     if: "github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'"
-    needs: main
+    #needs: main
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.0.0
@@ -71,5 +71,5 @@ jobs:
           echo "::set-output name=tag::$(cat output)"
         id: tag
       - name: Create release
-        run: gh create release ${{ steps.tag.outputs.tag }} --generate-notes
+        run: gh release create ${{ steps.tag.outputs.tag }} --generate-notes
 
