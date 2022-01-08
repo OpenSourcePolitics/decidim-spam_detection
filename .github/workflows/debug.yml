@@ -1,0 +1,13 @@
+name: "Debug"
+on: [push]
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install gh new version
+        run: |
+          curl -k -O -L https://github.com/cli/cli/releases/download/v2.4.0/gh_2.4.0_linux_amd64.deb
+          sudo apt install ./gh_2.4.0_linux_amd64.deb
+      - run: gh --version
+        name: gh version
