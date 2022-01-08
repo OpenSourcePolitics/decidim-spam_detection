@@ -1,5 +1,5 @@
 # Config at https://github.com/MeilCli/bump-release-action/blob/master/README.md
-name: Release and Publish
+name: Publish
 
 on:
   push:
@@ -8,22 +8,8 @@ on:
       - "main"
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - uses: MeilCli/bump-release-action@v1
-        with:
-          config_path: '.github/bump.yml'
-          bump: "patch"
-          dry_run: "false"
-          draft: "false"
-          pre_release: "false"
   publish:
     runs-on: ubuntu-latest
-    needs: release
     steps:
       - uses: actions/checkout@v1
       - name: Release Gem
