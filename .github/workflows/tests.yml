@@ -51,7 +51,7 @@ jobs:
           path: ./spec/decidim_dummy_app/tmp/screenshots
           if-no-files-found: ignore
   release:
-    if: "github.ref == 'ref/heads/master' || github.ref == 'refs/heads/main'"
+    if: "github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'"
     needs: main
     runs-on: ubuntu-latest
     steps:
