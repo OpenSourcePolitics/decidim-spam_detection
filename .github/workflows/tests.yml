@@ -67,5 +67,5 @@ jobs:
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
       - name: Create tag and push
         run: |
-          bundle exec rake push_release_tag
+          bundle exec rake push_tag
 
