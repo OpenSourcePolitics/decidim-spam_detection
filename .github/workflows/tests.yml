@@ -70,7 +70,7 @@ jobs:
         run: |
           bundle exec rake push_tag_and_release
   publish:
-    needs: tag
+    needs: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
