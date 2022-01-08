@@ -50,7 +50,7 @@ jobs:
           name: screenshots
           path: ./spec/decidim_dummy_app/tmp/screenshots
           if-no-files-found: ignore
-  tag:
+  release:
     if: "github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'"
     #needs: main
     runs-on: ubuntu-latest
@@ -69,3 +69,18 @@ jobs:
       - name: Create tag and push
         run: |
           bundle exec rake push_tag_and_release
+  publish:
+    needs: tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Publish to RubyGems
+        run: |
+          mkdir -p $HOME/.gem
+          touch $HOME/.gem/credentials
+          chmod 0600 $HOME/.gem/credentials
+          printf -- "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
+          gem build *.gemspec
+          gem push *.gem
+        env:
+          GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_API_KEY}}"
