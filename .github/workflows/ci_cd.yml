@@ -1,4 +1,4 @@
-name: "Tests"
+name: "CI/CD"
 on: [push]
 
 env:
@@ -6,7 +6,24 @@ env:
   CODECOV: "true"
 
 jobs:
-  main:
+  lint:
+    name: Lint code
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: rokroskar/workflow-run-cleanup-action@v0.3.0
+        if: "github.ref != 'refs/heads/develop'"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - uses: actions/checkout@v2.0.0
+        with:
+          fetch-depth: 1
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Run Rubocop
+        run: bundle exec rubocop -P
+  tests:
     name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -52,7 +69,7 @@ jobs:
           if-no-files-found: ignore
   release:
     if: "github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'"
-    #needs: main
+    needs: main
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.0.0
