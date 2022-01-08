@@ -14,4 +14,5 @@ task :push_release_tag do
   system("git tag v#{Decidim::SpamDetection.version}")
   system("git push")
   system("git push --tags")
+  system("gh release create v#{Decidim::SpamDetection.version} --generate-notes")
 end
