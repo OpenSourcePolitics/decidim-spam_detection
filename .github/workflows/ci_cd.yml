@@ -69,7 +69,7 @@ jobs:
           if-no-files-found: ignore
   release:
     if: "github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'"
-    needs: [tests, lint]
+    #needs: [tests, lint]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.0.0
@@ -82,10 +82,20 @@ jobs:
         run: |
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          curl -k -O -L https://github.com/cli/cli/releases/download/v2.4.0/gh_2.4.0_linux_amd64.deb
+          sudo apt install ./gh_2.4.0_linux_amd64.deb
           echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
-      - name: Create tag and push
+      - run: gem install parse_gemspec-cli
+        name: Intall gem parser
+      - run: echo "::set-output name=tag::$(parse-gemspec-cli *.gemspec | jq .'version')"
+        name: Set tag version
+        id: set_tag
+      - name: Add tag and push
         run: |
-          bundle exec rake push_tag_and_release
+          git tag
+          git push --tags
+      - name: Create release
+        run: gh release create ${{ steps.set_tag.outputs.tag }} --generate-notes
   publish:
     needs: release
     runs-on: ubuntu-latest
