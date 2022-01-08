@@ -2,10 +2,8 @@
 name: Publish
 
 on:
-  push:
-    branches:
-      - "master"
-      - "main"
+  release:
+    types: [published]
 
 jobs:
   publish:
