@@ -67,9 +67,5 @@ jobs:
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
       - name: Create tag and push
         run: |
-          bundle exec rake push_tag > output
-          echo "::set-output name=tag::$(cat output)"
-        id: tag
-      - name: Create release
-        run: gh release create ${{ steps.tag.outputs.tag }} --generate-notes
+          bundle exec rake push_release_tag
 
