@@ -61,18 +61,11 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-      - name: Setup git
+      - name: Setup git and gh
         run: |
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          gh auth login --with-token ${{ secrets.GITHUB_TOKEN }}
       - name: Create tag and push
         run: |
-          bundle exec rake push_tag
-  release:
-    needs: tag
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Release
-        uses: softprops/action-gh-release@v1
+          bundle exec rake push_tag_and_release
