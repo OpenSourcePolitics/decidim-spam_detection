@@ -5,9 +5,22 @@ jobs:
   debug:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2.0.0
+        with:
+          fetch-depth: 1
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
       - name: Install gh new version
         run: |
           curl -k -O -L https://github.com/cli/cli/releases/download/v2.4.0/gh_2.4.0_linux_amd64.deb
           sudo apt install ./gh_2.4.0_linux_amd64.deb
       - run: gh --version
         name: gh version
+      - run: gem install parse_gemspec-cli
+        name: Intall gem parser
+      - run: echo "::set-output name=tag::$(parse-gemspec-cli *.gemspec | jq .'version')"
+        name: Set tag version
+        id: set_tag
+      - run: git tag ${{ steps.set_tag.outputs.tag }}
+        name: Add tag
