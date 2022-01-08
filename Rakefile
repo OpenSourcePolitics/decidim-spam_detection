@@ -11,4 +11,5 @@ task development_app: "decidim:generate_external_development_app"
 task :push_tag do
   system("git tag v#{Decidim::SpamDetection.version}")
   system("git push --tags")
+  print("v#{Decidim::SpamDetection.version}")
 end
