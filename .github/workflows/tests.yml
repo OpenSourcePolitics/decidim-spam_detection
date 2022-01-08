@@ -50,7 +50,7 @@ jobs:
           name: screenshots
           path: ./spec/decidim_dummy_app/tmp/screenshots
           if-no-files-found: ignore
-  release:
+  tag:
     if: "github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'"
     #needs: main
     runs-on: ubuntu-latest
@@ -68,4 +68,8 @@ jobs:
       - name: Create tag and push
         run: |
           bundle exec rake push_tag
-
+  release:
+    needs: tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: softprops/action-gh-release@v1
