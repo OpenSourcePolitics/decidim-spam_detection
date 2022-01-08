@@ -72,4 +72,7 @@ jobs:
     needs: tag
     runs-on: ubuntu-latest
     steps:
-      - uses: softprops/action-gh-release@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Release
+        uses: softprops/action-gh-release@v1
