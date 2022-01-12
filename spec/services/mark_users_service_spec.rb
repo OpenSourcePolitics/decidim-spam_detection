@@ -109,8 +109,8 @@ module Decidim
 
         it "calls the adapter" do
           expect(Decidim::SpamDetection::SpamUserCommandAdapter).to receive(:call)
-                                                                      .with(users_array.first)
-                                                                      .and_call_original
+            .with(users_array.first)
+            .and_call_original
 
           subject.mark_spam_users(users_array)
         end
@@ -118,7 +118,7 @@ module Decidim
         it "adds the output to results" do
           subject.mark_spam_users(users_array)
 
-          expect(results_instance_variable).to eq({ user_hash["decidim_organization_id"] => [:reported_user] })
+          expect(results_instance_variable).to eq({ user_hash["decidim_organization_id"].to_s => [:reported_user] })
         end
       end
 
@@ -147,7 +147,23 @@ module Decidim
         it "returns a hash with the count for each return" do
           subject.mark_spam_users(users_array)
 
-          expect(subject.status).to eq({ user_hash["decidim_organization_id"] => { reported_user: 2, blocked_user: 1, nothing: 2 } })
+          expect(subject.status).to eq({ user_hash["decidim_organization_id"].to_s => { reported_user: 2, blocked_user: 1, nothing: 2 } })
+        end
+      end
+
+      describe "notify_admins" do
+        let(:results) do
+          { organization.id.to_s => { reported_user: 2, blocked_user: 1, nothing: 2 } }
+        end
+
+        before do
+          subject.instance_variable_set(:@results, results)
+        end
+
+        it "enqueue the notify admins job" do
+          subject.notify_admins!
+
+          expect(Decidim::SpamDetection::NotifyAdmins).to have_been_enqueued.with(results)
         end
       end
     end

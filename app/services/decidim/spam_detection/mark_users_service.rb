@@ -38,6 +38,7 @@ module Decidim
         spam_probability_array = Decidim::SpamDetection::ApiProxy.request(cleaned_users)
 
         mark_spam_users(merge_response_with_users(spam_probability_array))
+        notify_admins!
       end
 
       def mark_spam_users(probability_array)
@@ -45,7 +46,7 @@ module Decidim
           result = Decidim::SpamDetection::SpamUserCommandAdapter.call(probability_hash).result
           organization_id = probability_hash["decidim_organization_id"]
 
-          add_to_results(organization_id, result)
+          add_to_results(organization_id.to_s, result)
         end
       end
 
@@ -62,6 +63,10 @@ module Decidim
         @results.each_with_object({}) do |result, hash|
           hash[result[0]] = result[1].tally
         end
+      end
+
+      def notify_admins!
+        Decidim::SpamDetection::NotifyAdmins.perform_later(@results)
       end
 
       private
