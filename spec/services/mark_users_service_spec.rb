@@ -79,7 +79,7 @@ module Decidim
 
         describe "@result" do
           it "returns an array" do
-            expect(results_instance_variable).to eq([])
+            expect(results_instance_variable).to eq({})
           end
         end
       end
@@ -109,8 +109,8 @@ module Decidim
 
         it "calls the adapter" do
           expect(Decidim::SpamDetection::SpamUserCommandAdapter).to receive(:call)
-            .with(users_array.first)
-            .and_call_original
+                                                                      .with(users_array.first)
+                                                                      .and_call_original
 
           subject.mark_spam_users(users_array)
         end
@@ -118,7 +118,7 @@ module Decidim
         it "adds the output to results" do
           subject.mark_spam_users(users_array)
 
-          expect(results_instance_variable).to eq([:reported_user])
+          expect(results_instance_variable).to eq({ user_hash["decidim_organization_id"] => [:reported_user] })
         end
       end
 
@@ -147,7 +147,7 @@ module Decidim
         it "returns a hash with the count for each return" do
           subject.mark_spam_users(users_array)
 
-          expect(subject.status).to eq({ reported_user: 2, blocked_user: 1, nothing: 2 })
+          expect(subject.status).to eq({ user_hash["decidim_organization_id"] => { reported_user: 2, blocked_user: 1, nothing: 2 } })
         end
       end
     end
