@@ -24,6 +24,14 @@ module Decidim
         raise NotImplementedError
       end
 
+      def reason
+        raise NotImplementedError
+      end
+
+      def details
+        raise NotImplementedError
+      end
+
       def moderation_user
         moderation_admin_params = {
           name: SPAM_USER[:name],

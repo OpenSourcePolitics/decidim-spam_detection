@@ -9,28 +9,60 @@ module Decidim
       prepend Decidim::SpamDetection::Command
 
       def call
-        form = form(Decidim::Admin::BlockUserForm).from_params(
-          justification: "The user was blocked because of a high spam probability by Decidim spam detection bot"
-        )
+        ActiveRecord::Base.transaction do
+          create_user_moderation
+          block!
+          register_justification!
+          notify_user!
+          add_spam_detection_metadata!({ "blocked_at" => Time.current, "spam_probability" => @probability })
+        end
 
-        moderator = @moderator
-        user = @user
-
-        form.define_singleton_method(:user) { user }
-        form.define_singleton_method(:current_user) { moderator }
-        form.define_singleton_method(:blocking_user) { moderator }
-
-        Decidim::Admin::BlockUser.call(form)
-
-        add_spam_detection_metadata!({
-                                       "blocked_at" => Time.current,
-                                       "spam_probability" => @probability
-                                     })
-
-        @user.create_user_moderation
         Rails.logger.info("User with id #{@user["id"]} was blocked for spam")
 
         :ok
+      end
+
+      private
+
+      def create_user_moderation
+        @user.create_user_moderation
+      end
+
+      def register_justification!
+        UserBlock.create!(justification: reason, user: @user, blocking_user: @moderator)
+      end
+
+      def notify_user!
+        Decidim::BlockUserJob.perform_later(@user, reason)
+      end
+
+      def block!
+        Decidim.traceability.perform_action!(
+          "block",
+          @user,
+          @moderator,
+          extra: {
+            reportable_type: @user.class.name,
+            current_justification: reason
+          },
+          resource: {
+            # Make sure the action log entry gets the original user name instead
+            # of "Blocked user". Otherwise the log entries would show funny
+            # messages such as "Mr. Admin blocked user Blocked user"-
+            title: @user.name
+          }
+        ) do
+          @user.blocked = true
+          @user.blocked_at = Time.current
+          @user.blocking = @current_blocking
+          @user.extended_data["user_name"] = @user.name
+          @user.name = "Blocked user"
+          @user.save!
+        end
+      end
+
+      def reason
+        "The user was blocked because of a high spam probability by Decidim spam detection bot"
       end
     end
   end

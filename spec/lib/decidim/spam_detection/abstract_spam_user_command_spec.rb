@@ -15,6 +15,18 @@ module Decidim
         end
       end
 
+      describe "#reason" do
+        it "raises an error" do
+          expect { subject.reason }.to raise_error(NotImplementedError)
+        end
+      end
+
+      describe "#details" do
+        it "raises an error" do
+          expect { subject.details }.to raise_error(NotImplementedError)
+        end
+      end
+
       describe "#moderation_user" do
         it "creates the admin" do
           expect { subject.moderation_user }.to change(Decidim::User, :count)
