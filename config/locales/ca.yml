@@ -9,7 +9,7 @@ ca:
         notify_detection:
           blocked_count: blocked_count %{count}
           hello: Hello %{name}
-          intro: "Aquí teniu l'informe de la tasca de detecció de correu brossa"
+          intro: Aquí teniu l'informe de la tasca de detecció de correu brossa
           reported_count: reported_count %{count}
     spam_detection_mailer:
       notify_detection:
