@@ -1,10 +1,10 @@
 <p class="email-greeting"><%= t(".hello", name: @user.name) %></p>
-<p class="email-greeting"><%= t(".intro") %></p>
+<p><%= t(".intro") %></p>
 
 <p>
   <%= t(".reported_count", count: @reported_count) %>
 </p>
 
 <p>
-  <%= t(".blocked_count", count: @reported_count) %>
+  <%= t(".blocked_count", count: @blocked_count) %>
 </p>

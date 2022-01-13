@@ -10,7 +10,7 @@ module Decidim
           next if result.keys == [:nothing]
 
           Decidim::Organization.find(id).admins.each do |admin|
-            Decidim::SpamDetection::SpamDetectionMailer.notify_detection(admin, result).deliver_now
+            Decidim::SpamDetection::SpamDetectionMailer.notify_detection(admin, result)
           end
         end
       end

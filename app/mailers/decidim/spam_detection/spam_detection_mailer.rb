@@ -3,15 +3,15 @@
 module Decidim
   module SpamDetection
     class SpamDetectionMailer < Decidim::ApplicationMailer
-      def notify_detection(admin, results)
-        with_user(admin) do
+      def notify_detection(user, results)
+        with_user(user) do
           @reported_count = results[:reported_user]
-          @blocked_count = results[:blocked_count]
-          @organization = admin.organization
-          @user = admin
+          @blocked_count = results[:blocked_user]
+          @organization = user.organization
+          @user = user
 
           subject = I18n.t("notify_detection.subject", scope: "decidim.spam_detection_mailer")
-          mail(to: admin.email, subject: subject)
+          mail(to: @user.email, subject: subject)
         end
       end
     end
