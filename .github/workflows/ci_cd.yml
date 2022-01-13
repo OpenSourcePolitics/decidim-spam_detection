@@ -58,8 +58,6 @@ jobs:
       - run: mkdir -p ./spec/decidim_dummy_app/tmp/screenshots
         name: Create the screenshots folder
       - uses: nanasess/setup-chromedriver@v1.0.1
-      - name: Run precompile
-        run: bundle exec rails assets:precompile
       - run: bundle exec rspec
         name: RSpec
       - uses: codecov/codecov-action@v1
