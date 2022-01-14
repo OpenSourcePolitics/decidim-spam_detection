@@ -3,14 +3,14 @@ fr:
   decidim:
     components:
       spam_detection:
-        name: SpamDetection
+        name: Détection des spams
     spam_detection:
       spam_detection_mailer:
         notify_detection:
-          blocked_count: blocked_count %{count}
-          hello: Hello %{name}
-          intro: Here is the report of the spam detection task
-          reported_count: reported_count %{count}
+          blocked_count: 'Nombre d''utilisateurs bloqués: %{count}'
+          hello: Bonjour %{name}
+          intro: Voici le rapport de la tâche de détection des spam.
+          reported_count: 'Nombre d''utilisateurs signalés: %{count}'
     spam_detection_mailer:
       notify_detection:
-        subject: Subject
+        subject: Rapport de la tâche de détection des spam
