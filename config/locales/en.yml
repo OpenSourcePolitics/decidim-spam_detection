@@ -3,7 +3,7 @@ en:
   decidim:
     components:
       spam_detection:
-        name: Spam Detection
+        name: SpamDetection
     spam_detection:
       spam_detection_mailer:
         notify_detection:

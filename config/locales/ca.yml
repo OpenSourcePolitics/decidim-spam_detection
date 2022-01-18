@@ -3,14 +3,14 @@ ca:
   decidim:
     components:
       spam_detection:
-        name: Spam Detection
+        name: SpamDetection
     spam_detection:
       spam_detection_mailer:
         notify_detection:
-          blocked_count: 'Número de usuarios bloqueados: %{count}'
-          hello: Hola %{name}
-          intro: Este es el informe de la tarea de detección de spam
-          reported_count: 'Número de usuarios reportados: %{count}'
+          blocked_count: blocked_count %{count}
+          hello: Hello %{name}
+          intro: Aquí teniu l'informe de la tasca de detecció de correu brossa
+          reported_count: reported_count %{count}
     spam_detection_mailer:
       notify_detection:
-        subject: Informe de la tarea de detección de spam
+        subject: Resum de detecció de correu brossa
