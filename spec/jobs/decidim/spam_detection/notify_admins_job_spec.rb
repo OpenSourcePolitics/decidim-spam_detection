@@ -13,13 +13,23 @@ describe Decidim::SpamDetection::NotifyAdmins do
     }
   end
 
+  describe "queue" do
+    it "is queued to default" do
+      expect(subject.queue_name).to eq "default"
+    end
+  end
+
   describe "#perform" do
     let(:mailer) { double :mailer }
 
     it "sends an email to admins" do
       expect(Decidim::SpamDetection::SpamDetectionMailer)
         .to receive(:notify_detection)
-        .with(admin, { reported_user: 2, blocked_user: 1, nothing: 2 })
+              .with(admin, { reported_user: 2, blocked_user: 1, nothing: 2 })
+              .and_return(mailer)
+
+      expect(mailer)
+        .to receive(:deliver_later)
 
       subject.perform_now(results)
     end
@@ -37,7 +47,12 @@ describe Decidim::SpamDetection::NotifyAdmins do
       it "sends an email to admins" do
         expect(Decidim::SpamDetection::SpamDetectionMailer)
           .to receive(:notify_detection)
-          .twice
+                .and_return(mailer)
+                .twice
+
+        expect(mailer)
+          .to receive(:deliver_later)
+                .twice
 
         subject.perform_now(results)
       end
