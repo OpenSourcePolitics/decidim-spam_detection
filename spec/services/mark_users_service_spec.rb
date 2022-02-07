@@ -152,7 +152,7 @@ module Decidim
       end
 
       describe "notify_admins" do
-        let(:results) do
+        let(:status) do
           { organization.id.to_s => { reported_user: 2, blocked_user: 1, nothing: 2 } }
         end
 
@@ -163,7 +163,7 @@ module Decidim
         it "enqueue the notify admins job" do
           subject.notify_admins!
 
-          expect(Decidim::SpamDetection::NotifyAdmins).to have_been_enqueued.with(results)
+          expect(Decidim::SpamDetection::NotifyAdmins).to have_been_enqueued.with(status)
         end
       end
     end

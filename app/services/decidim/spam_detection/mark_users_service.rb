@@ -66,7 +66,7 @@ module Decidim
       end
 
       def notify_admins!
-        Decidim::SpamDetection::NotifyAdmins.perform_later(@results)
+        Decidim::SpamDetection::NotifyAdmins.perform_later(status)
       end
 
       private
