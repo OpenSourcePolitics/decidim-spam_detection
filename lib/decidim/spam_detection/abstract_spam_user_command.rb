@@ -65,8 +65,8 @@ module Decidim
 
       def add_spam_detection_metadata!(metadata)
         @user.extended_data = @user.extended_data
-                                        .dup
-                                        .deep_merge("spam_detection" => metadata)
+                                   .dup
+                                   .deep_merge("spam_detection" => metadata)
         @user.save(validate: false)
       end
     end

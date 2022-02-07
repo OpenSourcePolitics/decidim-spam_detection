@@ -25,8 +25,8 @@ describe Decidim::SpamDetection::NotifyAdmins do
     it "sends an email to admins" do
       expect(Decidim::SpamDetection::SpamDetectionMailer)
         .to receive(:notify_detection)
-              .with(admin, { reported_user: 2, blocked_user: 1, nothing: 2 })
-              .and_return(mailer)
+        .with(admin, { reported_user: 2, blocked_user: 1, nothing: 2 })
+        .and_return(mailer)
 
       expect(mailer)
         .to receive(:deliver_later)
@@ -47,12 +47,12 @@ describe Decidim::SpamDetection::NotifyAdmins do
       it "sends an email to admins" do
         expect(Decidim::SpamDetection::SpamDetectionMailer)
           .to receive(:notify_detection)
-                .and_return(mailer)
-                .twice
+          .and_return(mailer)
+          .twice
 
         expect(mailer)
           .to receive(:deliver_later)
-                .twice
+          .twice
 
         subject.perform_now(results)
       end
