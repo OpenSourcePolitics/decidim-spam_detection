@@ -70,6 +70,18 @@ module Decidim
               expect(user.reload.extended_data["spam_detection"]).to eq({ "foo" => "barz" })
             end
           end
+
+          context "when user is invalid" do
+            it "saves without error" do
+              user.nickname = "not valid @nickname"
+              user.save(validate: false)
+
+              expect(user).to be_invalid
+
+              subject.add_spam_detection_metadata!({ "foo" => "bar" })
+              expect(user.reload.extended_data["spam_detection"]).to eq({ "foo" => "bar" })
+            end
+          end
         end
       end
     end
