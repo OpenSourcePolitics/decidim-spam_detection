@@ -17,7 +17,7 @@ module Decidim
           add_spam_detection_metadata!({ "blocked_at" => Time.current, "spam_probability" => @probability })
         end
 
-        Rails.logger.info("User with id #{@user["id"]} was blocked for spam")
+        Rails.logger.info("User with id #{@user["id"]} was blocked for spam with a probability of #{@probability}%")
 
         :ok
       end
@@ -62,7 +62,7 @@ module Decidim
       end
 
       def reason
-        "The user was blocked because of a high spam probability by Decidim spam detection bot"
+        "The user was blocked because of a high spam probability by Decidim spam detection bot with a probability of #{@probability}%"
       end
     end
   end

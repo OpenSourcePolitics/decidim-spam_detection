@@ -16,7 +16,7 @@ module Decidim
           add_spam_detection_metadata!({ "reported_at" => Time.current, "spam_probability" => @probability })
         end
 
-        Rails.logger.info("User with id #{@user.id} was reported for spam")
+        Rails.logger.info("User with id #{@user.id} was reported for spam with a probability of #{@probability}%")
 
         :ok
       end
@@ -28,7 +28,7 @@ module Decidim
       end
 
       def details
-        "The user was marked as spam by Decidim spam detection bot"
+        "The user was marked as spam by Decidim spam detection bot with a probability of #{@probability}%"
       end
 
       def find_or_create_moderation!
