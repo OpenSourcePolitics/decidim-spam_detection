@@ -5,7 +5,7 @@ require "net/http"
 
 module Decidim
   module SpamDetection
-    class AbstractSpamUserAction
+    class AbstractSpamUserCommand
       SPAM_USER = {
         name: ENV.fetch("SPAM_DETECTION_NAME", "spam detection bot"),
         nickname: ENV.fetch("SPAM_DETECTION_NICKNAME", "Spam_detection_bot"),
@@ -20,11 +20,15 @@ module Decidim
         @moderator = moderation_user
       end
 
-      def self.call(user, probability)
-        new(user, probability).run
+      def call
+        raise NotImplementedError
       end
 
-      def run
+      def reason
+        raise NotImplementedError
+      end
+
+      def details
         raise NotImplementedError
       end
 
@@ -60,9 +64,10 @@ module Decidim
       end
 
       def add_spam_detection_metadata!(metadata)
-        @user.update!(extended_data: @user.extended_data
-                                        .dup
-                                        .deep_merge("spam_detection" => metadata))
+        @user.extended_data = @user.extended_data
+                                   .dup
+                                   .deep_merge("spam_detection" => metadata)
+        @user.save(validate: false)
       end
     end
   end

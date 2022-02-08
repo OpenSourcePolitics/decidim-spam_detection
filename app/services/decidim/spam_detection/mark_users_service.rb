@@ -27,21 +27,26 @@ module Decidim
                               .where(admin: false, blocked: false, deleted_at: nil)
                               .where("(extended_data #> '{spam_detection, unreported_at}') is null")
                               .where("(extended_data #> '{spam_detection, unblocked_at}') is null")
+        @results = {}
       end
 
-      def self.run
+      def self.call
         new.ask_and_mark
       end
 
       def ask_and_mark
-        spam_probability_array = Decidim::SpamDetection::ApiProxy.send_request_in_batch(cleaned_users)
+        spam_probability_array = Decidim::SpamDetection::ApiProxy.request(cleaned_users)
 
         mark_spam_users(merge_response_with_users(spam_probability_array))
+        notify_admins!
       end
 
       def mark_spam_users(probability_array)
         probability_array.each do |probability_hash|
-          Decidim::SpamDetection::SpamUserActionFactory.for(probability_hash)
+          result = Decidim::SpamDetection::SpamUserCommandAdapter.call(probability_hash).result
+          organization_id = probability_hash["decidim_organization_id"]
+
+          add_to_results(organization_id.to_s, result)
         end
       end
 
@@ -52,6 +57,26 @@ module Decidim
 
       def merge_response_with_users(response)
         response.map { |resp| resp.merge("original_user" => @users.find(resp["id"])) }
+      end
+
+      def status
+        @results.each_with_object({}) do |result, hash|
+          hash[result[0]] = result[1].tally
+        end
+      end
+
+      def notify_admins!
+        Decidim::SpamDetection::NotifyAdmins.perform_later(status)
+      end
+
+      private
+
+      def add_to_results(organization_id, result)
+        if @results[organization_id]
+          @results[organization_id] << result
+        else
+          @results[organization_id] = [result]
+        end
       end
     end
   end
