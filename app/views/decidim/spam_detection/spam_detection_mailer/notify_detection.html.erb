@@ -1,0 +1,14 @@
+<p class="email-greeting"><%= t(".hello", name: @user.name) %></p>
+<p><%= t(".intro") %></p>
+
+<% if @reported_count.present? %>
+  <p>
+    <%= t(".reported_count", count: @reported_count) %>
+  </p>
+<% end %>
+
+<% if @blocked_count.present? %>
+  <p>
+    <%= t(".blocked_count", count: @blocked_count) %>
+  </p>
+<% end %>

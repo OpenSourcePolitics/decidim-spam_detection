@@ -60,8 +60,9 @@ jobs:
       - uses: nanasess/setup-chromedriver@v1.0.1
       - name: Run precompile if needed
         run: |
-          if [[ -d ./spec/system && -n "$(ls -A ./spec/system)" ]]; then
-            rails assets:precompile
+          if [[ -d "app/views" ]] || [[ -d "spec/mailers" ]] || [[ -d "spec/system" ]]; then
+            cd "spec/decidim_dummy_app"
+            bundle exec rails assets:precompile
           else
             echo "No need to precompile assets since system folder is empty"
           fi

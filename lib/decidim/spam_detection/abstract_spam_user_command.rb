@@ -24,6 +24,14 @@ module Decidim
         raise NotImplementedError
       end
 
+      def reason
+        raise NotImplementedError
+      end
+
+      def details
+        raise NotImplementedError
+      end
+
       def moderation_user
         moderation_admin_params = {
           name: SPAM_USER[:name],
@@ -56,9 +64,10 @@ module Decidim
       end
 
       def add_spam_detection_metadata!(metadata)
-        @user.update!(extended_data: @user.extended_data
-                                        .dup
-                                        .deep_merge("spam_detection" => metadata))
+        @user.extended_data = @user.extended_data
+                                   .dup
+                                   .deep_merge("spam_detection" => metadata)
+        @user.save(validate: false)
       end
     end
   end

@@ -15,6 +15,18 @@ module Decidim
         end
       end
 
+      describe "#reason" do
+        it "raises an error" do
+          expect { subject.reason }.to raise_error(NotImplementedError)
+        end
+      end
+
+      describe "#details" do
+        it "raises an error" do
+          expect { subject.details }.to raise_error(NotImplementedError)
+        end
+      end
+
       describe "#moderation_user" do
         it "creates the admin" do
           expect { subject.moderation_user }.to change(Decidim::User, :count)
@@ -56,6 +68,18 @@ module Decidim
               user.update!(extended_data: { "spam_detection" => { "foo" => "bar" } })
               subject.add_spam_detection_metadata!({ "foo" => "barz" })
               expect(user.reload.extended_data["spam_detection"]).to eq({ "foo" => "barz" })
+            end
+          end
+
+          context "when user is invalid" do
+            it "saves without error" do
+              user.nickname = "not valid @nickname"
+              user.save(validate: false)
+
+              expect(user).to be_invalid
+
+              subject.add_spam_detection_metadata!({ "foo" => "bar" })
+              expect(user.reload.extended_data["spam_detection"]).to eq({ "foo" => "bar" })
             end
           end
         end
