@@ -1,7 +1,7 @@
 ---
 
 base_locale: en
-locales: [en]
+locales: [en, fr, es, ca]
 
 ignore_unused:
   - "decidim.components.spam_detection.name"
