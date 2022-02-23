@@ -1,5 +1,8 @@
 ---
 ca:
+  blocked_user:
+    reason: The user was blocked because of a high spam probability by Decidim spam
+      detection bot with a probability of %{probability}%
   decidim:
     components:
       spam_detection:
@@ -16,3 +19,6 @@ ca:
     spam_detection_mailer:
       notify_detection:
         subject: Resum de detecció de correu brossa
+  reported_user:
+    details: The user was marked as spam by Decidim spam detection bot with a probability
+      of %{probability}%
