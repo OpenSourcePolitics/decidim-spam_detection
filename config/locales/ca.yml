@@ -1,24 +1,22 @@
 ---
 ca:
   blocked_user:
-    reason: The user was blocked because of a high spam probability by Decidim spam
-      detection bot with a probability of %{probability}%
+    reason: L'usuari ha estat bloquejat a causa d'una alta probabilitat de spam per la tasca de detecció automàtica de spam de Decidim amb una probabilitat de% {probability}%
   decidim:
     components:
       spam_detection:
-        name: SpamDetection
+        name: DeteccioSpam
     spam_detection:
       spam_detection_mailer:
         notify_detection:
-          blocked_count: blocked_count %{count}
-          blocked_link: See the list of all blocked accounts on the site
-          hello: Hello %{name}
-          intro: Aquí teniu l'informe de la tasca de detecció de correu brossa
-          reported_count: reported_count %{count}
-          reported_link: Voir la liste de tous les comptes signalés du site
+          blocked_count: Comptes de spam bloquejats %{count}
+          blocked_link: Consulteu la llista de tots els comptes bloquejats
+          hello: Hola %{name}
+          intro: Aquí teniu l'informe de la tasca de detecció de spam
+          reported_count: Comptes blocs de %{count}
+          reported_link: Consulteu la llista de tots els comptes reportats al lloc
     spam_detection_mailer:
       notify_detection:
-        subject: Resum de detecció de correu brossa
+        subject: Informe de la tasca automàtica detecció de spam
   reported_user:
-    details: The user was marked as spam by Decidim spam detection bot with a probability
-      of %{probability}%
+    details: L'usuari s'ha marcat com spam a causa d'una alta probabilitat de spam per la tasca de detecció automàtica de spam de Decidim amb una probabilitat de% {probability}%
