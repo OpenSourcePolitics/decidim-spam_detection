@@ -29,8 +29,16 @@ module Decidim
             expect(email_body(mail)).to include("Reported users count: #{results[:reported_user]}")
           end
 
+          it "includes reported_user link" do
+            expect(email_body(mail)).to include("<a href=\"http://#{user.organization.host}/admin/moderated_users?blocked=false\">See the list of all reported accounts on the site</a>")
+          end
+
           it "includes blocked_user count" do
             expect(email_body(mail)).to include("Blocked users count: #{results[:blocked_user]}")
+          end
+
+          it "includes blocked_user link" do
+            expect(email_body(mail)).to include("<a href=\"http://#{user.organization.host}/admin/moderated_users?blocked=true\">See the list of all blocked accounts on the site</a>")
           end
         end
       end

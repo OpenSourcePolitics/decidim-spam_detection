@@ -11,6 +11,8 @@ fr:
           hello: Hello %{name}
           intro: Here is the report of the spam detection task
           reported_count: reported_count %{count}
+          blocked_link: "Voir la liste de tous les comptes bloqués du site"
+          reported_link: "Voir la liste de tous les comptes signalés du site"
     spam_detection_mailer:
       notify_detection:
         subject: Subject

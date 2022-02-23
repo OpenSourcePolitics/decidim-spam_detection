@@ -8,9 +8,11 @@ en:
       spam_detection_mailer:
         notify_detection:
           blocked_count: 'Blocked users count: %{count}'
+          blocked_link: See the list of all blocked accounts on the site
           hello: Hello %{name}
           intro: Here is the report of the spam detection task
           reported_count: 'Reported users count: %{count}'
+          reported_link: See the list of all reported accounts on the site
     spam_detection_mailer:
       notify_detection:
         subject: Spam detection digest
