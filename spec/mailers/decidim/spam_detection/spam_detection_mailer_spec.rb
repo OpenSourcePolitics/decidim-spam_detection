@@ -15,30 +15,30 @@ module Decidim
         let(:mail) { described_class.notify_detection(user, results) }
 
         describe "localisation" do
-          let(:subject) { "Resum de detecció de correu brossa" }
-          let(:default_subject) { "Spam detection digest" }
+          let(:subject) { "Informe de la tasca automàtica detecció de spam" }
+          let(:default_subject) { "Automated spam detection task digest" }
 
-          let(:body) { "Aquí teniu l&#39;informe de la tasca de detecció de correu brossa" }
-          let(:default_body) { "Here is the report of the spam detection task" }
+          let(:body) { "Aquí teniu l&#39;informe de la tasca de detecció de spam" }
+          let(:default_body) { "Here is the report of the automated spam detection task." }
 
           include_examples "localised email"
         end
 
         describe "email body" do
           it "includes reported_user count" do
-            expect(email_body(mail)).to include("Reported users count: #{results[:reported_user]}")
+            expect(email_body(mail)).to include("Spam accounts reported: #{results[:reported_user]}")
           end
 
           it "includes reported_user link" do
-            expect(email_body(mail)).to include("<a href=\"http://#{user.organization.host}/admin/moderated_users?blocked=false\">See the list of all reported accounts on the site</a>")
+            expect(email_body(mail)).to include("<a href=\"http://#{user.organization.host}/admin/moderated_users?blocked=false\">See the list of all reported accounts</a>")
           end
 
           it "includes blocked_user count" do
-            expect(email_body(mail)).to include("Blocked users count: #{results[:blocked_user]}")
+            expect(email_body(mail)).to include("Spam accounts blocked: #{results[:blocked_user]}")
           end
 
           it "includes blocked_user link" do
-            expect(email_body(mail)).to include("<a href=\"http://#{user.organization.host}/admin/moderated_users?blocked=true\">See the list of all blocked accounts on the site</a>")
+            expect(email_body(mail)).to include("<a href=\"http://#{user.organization.host}/admin/moderated_users?blocked=true\">See the list of all blocked accounts</a>")
           end
         end
       end

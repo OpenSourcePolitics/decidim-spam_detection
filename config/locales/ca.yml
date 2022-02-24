@@ -1,7 +1,8 @@
 ---
 ca:
   blocked_user:
-    reason: L'usuari ha estat bloquejat a causa d'una alta probabilitat de spam per la tasca de detecció automàtica de spam de Decidim amb una probabilitat de% {probability}%
+    reason: L'usuari ha estat bloquejat a causa d'una alta probabilitat de spam per
+      la tasca de detecció automàtica de spam de Decidim amb una probabilitat de %{probability}%
   decidim:
     components:
       spam_detection:
@@ -19,4 +20,6 @@ ca:
       notify_detection:
         subject: Informe de la tasca automàtica detecció de spam
   reported_user:
-    details: L'usuari s'ha marcat com spam a causa d'una alta probabilitat de spam per la tasca de detecció automàtica de spam de Decidim amb una probabilitat de% {probability}%
+    details: L'usuari s'ha marcat com spam a causa d'una alta probabilitat de spam
+      per la tasca de detecció automàtica de spam de Decidim amb una probabilitat
+      de %{probability}%

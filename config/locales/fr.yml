@@ -1,7 +1,8 @@
 ---
 fr:
   blocked_user:
-    reason: L'utilisateur a été bloqué en raison d'une forte probabilité de spam par la tâche de détection automatique de spam avec une probabilité de %{probability}%
+    reason: L'utilisateur a été bloqué en raison d'une forte probabilité de spam par
+      la tâche de détection automatique de spam avec une probabilité de %{probability}%
   decidim:
     components:
       spam_detection:
@@ -9,14 +10,15 @@ fr:
     spam_detection:
       spam_detection_mailer:
         notify_detection:
-          blocked_count: Comptes spam bloqués : %{count} %{count}
+          blocked_count: 'Comptes spam bloqués : %{count}'
           blocked_link: Voir la liste de tous les comptes bloqués du site
           hello: Bonjour %{name}
           intro: Voici le rapport de la tâche de détection automatisée des spams.
-          reported_count: Comptes spam signalés %{count}
+          reported_count: 'Comptes spam signalés : %{count}'
           reported_link: Voir la liste de tous les comptes signalés
     spam_detection_mailer:
       notify_detection:
         subject: Rapport de la tâche de détection automatique de spam
   reported_user:
-    details: L'utilisateur a été signalé en raison d'une forte probabilité de spam par la tâche de détection automatique de spam avec une probabilité de %{probability}%
+    details: L'utilisateur a été signalé en raison d'une forte probabilité de spam
+      par la tâche de détection automatique de spam avec une probabilité de %{probability}%

@@ -17,7 +17,7 @@ module Decidim
 
         it "creates a log" do
           expect { subject }.to change(Decidim::ActionLog, :count)
-          expect(Decidim::ActionLog.last.extra.dig("extra", "current_justification")).to eq("The user was blocked because of a high spam probability by Decidim spam detection bot with a probability of #{spam_probabilty}%")
+          expect(Decidim::ActionLog.last.extra.dig("extra", "current_justification")).to eq("The user was blocked because of a high spam probability by the automated spam detection task with a probability of #{spam_probabilty}%")
         end
 
         it "create a moderation entry" do
