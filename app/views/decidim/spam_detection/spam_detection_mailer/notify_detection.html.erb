@@ -5,10 +5,12 @@
   <p>
     <%= t(".reported_count", count: @reported_count) %>
   </p>
+  <p><%= link_to(t(".reported_link"), reported_users_url ) %></p>
 <% end %>
 
 <% if @blocked_count.present? %>
   <p>
     <%= t(".blocked_count", count: @blocked_count) %>
   </p>
+  <p><%= link_to(t(".blocked_link"), blocked_users_url ) %></p>
 <% end %>

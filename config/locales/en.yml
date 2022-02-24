@@ -1,5 +1,8 @@
 ---
 en:
+  blocked_user:
+    reason: The user was blocked because of a high spam probability by the automated
+      spam detection task with a probability of %{probability}%
   decidim:
     components:
       spam_detection:
@@ -7,10 +10,15 @@ en:
     spam_detection:
       spam_detection_mailer:
         notify_detection:
-          blocked_count: 'Blocked users count: %{count}'
+          blocked_count: 'Spam accounts blocked: %{count}'
+          blocked_link: See the list of all blocked accounts
           hello: Hello %{name}
-          intro: Here is the report of the spam detection task
-          reported_count: 'Reported users count: %{count}'
+          intro: Here is the report of the automated spam detection task.
+          reported_count: 'Spam accounts reported: %{count}'
+          reported_link: See the list of all reported accounts
     spam_detection_mailer:
       notify_detection:
-        subject: Spam detection digest
+        subject: Automated spam detection task digest
+  reported_user:
+    details: The user was reported because of a high spam probability by the automated
+      spam detection task with a probability of %{probability}%
