@@ -14,7 +14,7 @@ module Decidim
         it "reports the user" do
           expect { subject }.to change(Decidim::UserReport, :count)
           expect(Decidim::UserReport.last.moderation.user).to eq(user)
-          expect(Decidim::UserReport.last.details).to eq("The user was marked as spam by Decidim spam detection bot with a probability of #{spam_probabilty}%")
+          expect(Decidim::UserReport.last.details).to eq("The user was reported because of a high spam probability by the automated spam detection task with a probability of #{spam_probabilty}%")
         end
 
         it "#add spam detection metadata" do

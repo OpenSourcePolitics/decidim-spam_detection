@@ -62,7 +62,7 @@ module Decidim
       end
 
       def reason
-        "The user was blocked because of a high spam probability by Decidim spam detection bot with a probability of #{@probability}%"
+        I18n.t("blocked_user.reason", probability: @probability)
       end
     end
   end

@@ -28,7 +28,7 @@ module Decidim
       end
 
       def details
-        "The user was marked as spam by Decidim spam detection bot with a probability of #{@probability}%"
+        I18n.t("reported_user.details", probability: @probability)
       end
 
       def find_or_create_moderation!
