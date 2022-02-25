@@ -90,8 +90,6 @@ jobs:
         run: |
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          curl -k -O -L https://github.com/cli/cli/releases/download/v2.4.0/gh_2.4.0_linux_amd64.deb
-          sudo apt install ./gh_2.4.0_linux_amd64.deb
           echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
       - run: gem install parse_gemspec-cli
         name: Intall gem parser

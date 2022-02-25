@@ -5,6 +5,8 @@ locales: [en, fr, es, ca]
 
 ignore_unused:
   - "decidim.components.spam_detection.name"
+  - blocked_user.*
+  - reported_user.*
 
 ignore_missing:
   - decidim.participatory_processes.scopes.global
