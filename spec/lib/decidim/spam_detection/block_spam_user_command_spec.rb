@@ -38,6 +38,16 @@ module Decidim
         it "broadcast a result" do
           expect(subject.result).to eq(:ok)
         end
+
+        context "when extended_data is nil" do
+          before do
+            user.update!(extended_data: nil)
+          end
+
+          it "broadcast ok" do
+            expect(subject.result).to eq(:ok)
+          end
+        end
       end
     end
   end
