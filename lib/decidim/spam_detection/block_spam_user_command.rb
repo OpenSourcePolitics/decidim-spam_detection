@@ -55,7 +55,7 @@ module Decidim
           @user.blocked = true
           @user.blocked_at = Time.current
           @user.blocking = @current_blocking
-          @user.extended_data["user_name"] = @user.name
+          update_extended_data
           @user.name = "Blocked user"
           @user.save!
         end
@@ -63,6 +63,11 @@ module Decidim
 
       def reason
         I18n.t("blocked_user.reason", probability: @probability)
+      end
+
+      def update_extended_data
+        @user.extended_data = {} if @user.extended_data.nil?
+        @user.extended_data["user_name"] = @user.name
       end
     end
   end
