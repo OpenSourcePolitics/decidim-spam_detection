@@ -1,8 +1,9 @@
 ---
 fr:
   blocked_user:
-    reason: Notre tâche de détection automatique des comptes spam vous a bloqué. S'il s'agit d'une erreur.
-      Prenez contact avec les administrateurs de la plateforme qui pourront rétablir votre compte.
+    reason: Notre tâche de détection automatique des comptes spam vous a bloqué. S'il
+      s'agit d'une erreur. Prenez contact avec les administrateurs de la plateforme
+      qui pourront rétablir votre compte.
   decidim:
     components:
       spam_detection:

@@ -18,7 +18,7 @@ module Decidim
           let(:subject) { "Informe de la tasca automàtica detecció de spam" }
           let(:default_subject) { "Automated spam detection task digest" }
 
-          let(:body) { "Aquí teniu l&#39;informe de la tasca de detecció de spam" }
+          let(:body) { "Aquí teniu l’informe de la tasca de detecció de spam" }
           let(:default_body) { "Here is the report of the automated spam detection task." }
 
           include_examples "localised email"

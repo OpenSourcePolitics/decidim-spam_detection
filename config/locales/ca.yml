@@ -1,8 +1,9 @@
 ---
 ca:
   blocked_user:
-    reason: La nostra tasca de detecció automàtica dspam li ha bloquejat. 
-      Si això és un error. Poseu-vos en contacte amb els administradors de la plataforma que poden restaurar el vostre compte.
+    reason: La nostra tasca de detecció automàtica dspam li ha bloquejat. Si això
+      és un error. Poseu-vos en contacte amb els administradors de la plataforma que
+      poden restaurar el vostre compte.
   decidim:
     components:
       spam_detection:

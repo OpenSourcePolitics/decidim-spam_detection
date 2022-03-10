@@ -1,8 +1,9 @@
 ---
 es:
   blocked_user:
-    reason: Nuestra tarea de detección automática de spam le ha bloqueado. 
-      Si esto es un error. Póngase en contacto con los administradores de la plataforma que pueden restaurar su cuenta.
+    reason: Nuestra tarea de detección automática de spam le ha bloqueado. Si esto
+      es un error. Póngase en contacto con los administradores de la plataforma que
+      pueden restaurar su cuenta.
   decidim:
     components:
       spam_detection:
