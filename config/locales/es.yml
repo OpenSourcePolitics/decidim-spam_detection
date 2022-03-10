@@ -1,8 +1,8 @@
 ---
 es:
   blocked_user:
-    reason: El usuario fue bloqueado debido a una alta probabilidad de spam por la
-      tarea de detección automática de spam con una probabilidad de %{probability}%
+    reason: Nuestra tarea de detección automática de spam le ha bloqueado. 
+      Si esto es un error. Póngase en contacto con los administradores de la plataforma que pueden restaurar su cuenta.
   decidim:
     components:
       spam_detection:
