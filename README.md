@@ -1,6 +1,8 @@
 # Decidim::SpamDetection
 [![codecov](https://codecov.io/gh/OpenSourcePolitics/decidim-spam_detection/branch/master/graph/badge.svg?token=eJu34XLlVu)](https://codecov.io/gh/OpenSourcePolitics/decidim-spam_detection)
 ![Tests](https://github.com/opensourcepolitics/decidim-spam_detection/actions/workflows/ci_cd.yml/badge.svg)
+[![Gem Version](https://badge.fury.io/rb/decidim-spam_detection.svg)](https://badge.fury.io/rb/decidim-spam_detection)
+
 
 ## Usage
 
