@@ -1,8 +1,9 @@
 ---
 fr:
   blocked_user:
-    reason: L'utilisateur a été bloqué en raison d'une forte probabilité de spam par
-      la tâche de détection automatique de spam avec une probabilité de %{probability}%
+    reason: Notre tâche de détection automatique des comptes spam vous a bloqué. S'il
+      s'agit d'une erreur. Prenez contact avec les administrateurs de la plateforme
+      qui pourront rétablir votre compte.
   decidim:
     components:
       spam_detection:
@@ -20,5 +21,5 @@ fr:
       notify_detection:
         subject: Rapport de la tâche de détection automatique de spam
   reported_user:
-    details: L'utilisateur a été signalé en raison d'une forte probabilité de spam
+    details: L’utilisateur a été signalé en raison d’une forte probabilité de spam
       par la tâche de détection automatique de spam avec une probabilité de %{probability}%
