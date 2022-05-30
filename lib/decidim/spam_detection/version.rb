@@ -5,11 +5,11 @@ module Decidim
   # This holds the decidim-spam_detection version.
   module SpamDetection
     def self.version
-      "1.1.2"
+      "2.0.0"
     end
 
     def self.decidim_version
-      "0.25"
+      "0.26"
     end
   end
 end
