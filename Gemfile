@@ -8,7 +8,7 @@ gem "decidim"
 gem "decidim-spam_detection", path: "."
 
 gem "bootsnap", "~> 1.4"
-gem "puma", ">= 4.3"
+gem "puma", ">= 5.5.1"
 
 group :development, :test do
   gem "byebug", "~> 11.0", platform: :mri
