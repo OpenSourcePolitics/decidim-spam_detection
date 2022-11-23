@@ -18,7 +18,7 @@ All reports and blocks are made like regular Decidim ones.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "decidim-spam_detection", git: "https://github.com/OpenSourcePolitics/decidim-spam_detection.git"
+gem "decidim-spam_detection"
 ```
 
 And then execute:
