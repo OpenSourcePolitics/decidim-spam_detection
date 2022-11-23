@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    decidim-spam_detection (2.0.0)
+    decidim-spam_detection (2.0.1)
       decidim-core (~> 0.26)
 
 GEM
