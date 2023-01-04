@@ -7,7 +7,7 @@ module Decidim
       SPAM_LEVEL = { very_sure: 0.99, probable: 0.7 }.freeze
 
       def self.perform_block_user?
-        ENV.fetch("PERFORM_BLOCK_USER", false)
+        Decidim::SpamDetection.spam_detection_api_perform_block_user
       end
 
       def initialize(probability_hash)
