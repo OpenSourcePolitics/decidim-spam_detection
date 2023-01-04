@@ -2,7 +2,7 @@
 
 module Decidim
   module Admin
-    class UnreportUser < Rectify::Command
+    class UnreportUser < Decidim::Command
       # Public: Initializes the command.
       #
       # reportable - A Decidim::User - The user reported
@@ -46,7 +46,7 @@ module Decidim
       def add_spam_detection_metadata!
         return if @reportable.extended_data.dig("spam_detection", "reported_at").blank?
 
-        @reportable.update!(extended_data: @reportable.extended_data.dup.deep_merge("spam_detection" => { "unreported_at": Time.current }))
+        @reportable.update!(extended_data: @reportable.extended_data.dup.deep_merge("spam_detection" => { unreported_at: Time.current }))
       end
     end
   end

@@ -2,7 +2,7 @@
 
 module Decidim
   module Admin
-    class UnblockUser < Rectify::Command
+    class UnblockUser < Decidim::Command
       # Public: Initializes the command.
       #
       # blocked_user - the user that is unblocked
@@ -48,7 +48,7 @@ module Decidim
       def add_spam_detection_metadata!
         return if @blocked_user.extended_data.dig("spam_detection", "blocked_at").blank?
 
-        @blocked_user.update!(extended_data: @blocked_user.extended_data.dup.deep_merge("spam_detection" => { "unblocked_at": Time.current }))
+        @blocked_user.update!(extended_data: @blocked_user.extended_data.dup.deep_merge("spam_detection" => { unblocked_at: Time.current }))
       end
     end
   end

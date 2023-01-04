@@ -17,7 +17,7 @@ module Decidim::Admin
 
       it "deletes the moderation" do
         command.call
-        expect(reportable.reload.user_moderation).to be(nil)
+        expect(reportable.reload.user_moderation).to be_nil
       end
 
       it "doesn't adds spam probability informations" do
@@ -25,7 +25,7 @@ module Decidim::Admin
 
         spam_detection = reportable.reload.extended_data.fetch("spam_detection", {})
 
-        expect(spam_detection["unreported_at"]).to eq(nil)
+        expect(spam_detection["unreported_at"]).to be_nil
       end
 
       context "when user was marked as spam" do
@@ -36,7 +36,7 @@ module Decidim::Admin
 
           spam_detection = reportable.reload.extended_data.fetch("spam_detection", {})
 
-          expect(spam_detection["unreported_at"]).not_to eq(nil)
+          expect(spam_detection["unreported_at"]).not_to be_nil
         end
       end
 

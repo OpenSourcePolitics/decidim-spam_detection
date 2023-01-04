@@ -5,8 +5,6 @@ require "decidim/spam_detection/test/factories"
 FactoryBot.modify do
   factory :user, class: "Decidim::User" do
     email { generate(:email) }
-    password { "password1234" }
-    password_confirmation { password }
     name { generate(:name) }
     nickname { generate(:nickname) }
     organization
@@ -17,8 +15,11 @@ FactoryBot.modify do
     about { "<script>alert(\"ABOUT\");</script>#{Faker::Lorem.paragraph(sentence_count: 2)}" }
     confirmation_sent_at { Time.current }
     accepted_tos_version { organization.tos_version }
-    email_on_notification { true }
+    notifications_sending_frequency { "real_time" }
     email_on_moderations { true }
+    password_updated_at { Time.current }
+    previous_passwords { [] }
+    extended_data { {} }
 
     trait :confirmed do
       confirmed_at { Time.current }
@@ -27,7 +28,7 @@ FactoryBot.modify do
     trait :blocked do
       blocked { true }
       blocked_at { Time.current }
-      extended_data { { "user_name": generate(:name) } }
+      extended_data { { user_name: generate(:name) } }
       name { "Blocked user" }
     end
 
@@ -63,11 +64,19 @@ FactoryBot.modify do
       officialized_as { generate_localized_title }
     end
 
+    after(:build) do |user, evaluator|
+      # We have specs that call e.g. `create(:user, admin: true)` where we need
+      # to do this to ensure the user creation does not fail due to the short
+      # password.
+      user.password ||= evaluator.password || "decidim123456789"
+      user.password_confirmation ||= evaluator.password_confirmation || user.password
+    end
+
     trait :marked_as_spam do
       after(:build) do |user|
         user.extended_data = user.extended_data
                                  .dup
-                                 .deep_merge({ "spam_detection": { "reported_at": Time.zone.now - 1.day } })
+                                 .deep_merge({ spam_detection: { reported_at: 1.day.ago } })
       end
     end
 
@@ -75,7 +84,7 @@ FactoryBot.modify do
       after(:build) do |user|
         user.extended_data = user.extended_data
                                  .dup
-                                 .deep_merge({ "spam_detection": { "unreported_at": Time.zone.now - 1.day } })
+                                 .deep_merge({ spam_detection: { unreported_at: 1.day.ago } })
       end
     end
 
@@ -83,7 +92,7 @@ FactoryBot.modify do
       after(:build) do |user|
         user.extended_data = user.extended_data
                                  .dup
-                                 .deep_merge({ "spam_detection": { "blocked_at": Time.zone.now - 1.day } })
+                                 .deep_merge({ spam_detection: { blocked_at: 1.day.ago } })
       end
     end
 
@@ -91,7 +100,7 @@ FactoryBot.modify do
       after(:build) do |user|
         user.extended_data = user.extended_data
                                  .dup
-                                 .deep_merge({ "spam_detection": { "unblocked_at": Time.zone.now - 1.day } })
+                                 .deep_merge({ spam_detection: { unblocked_at: 1.day.ago } })
       end
     end
   end

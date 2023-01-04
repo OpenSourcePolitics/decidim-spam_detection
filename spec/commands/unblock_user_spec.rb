@@ -27,7 +27,7 @@ module Decidim::Admin
 
         spam_detection = user_to_unblock.reload.extended_data.fetch("spam_detection", {})
 
-        expect(spam_detection["unblocked_at"]).to eq(nil)
+        expect(spam_detection["unblocked_at"]).to be_nil
       end
 
       context "when user was marked as spam" do
@@ -38,7 +38,7 @@ module Decidim::Admin
 
           spam_detection = user_to_unblock.reload.extended_data.fetch("spam_detection", {})
 
-          expect(spam_detection["unblocked_at"]).not_to eq(nil)
+          expect(spam_detection["unblocked_at"]).not_to be_nil
         end
       end
 
