@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    decidim-spam_detection (2.0.1)
-      decidim-core (~> 0.26)
+    decidim-spam_detection (3.0.0)
+      decidim-core (~> 0.26.0)
 
 GEM
   remote: https://rubygems.org/
