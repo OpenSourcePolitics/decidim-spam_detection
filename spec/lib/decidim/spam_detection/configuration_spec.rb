@@ -53,6 +53,20 @@ module Decidim
             expect(subject.spam_detection_api_activate_service.call).to eq(true)
           end
         end
+
+        describe ".service_activated?" do
+          it "returns true if the spam service is activated" do
+            allow(subject).to receive(:spam_detection_api_activate_service).and_return(-> { true })
+
+            expect(subject.service_activated?).to eq(true)
+          end
+
+          it "returns false if the spam service is not activated" do
+            allow(subject).to receive(:spam_detection_api_activate_service).and_return(-> { false })
+
+            expect(subject.service_activated?).to eq(false)
+          end
+        end
       end
     end
   end

@@ -44,6 +44,9 @@ if you are using sidekiq scheduler you can use the following configuration:
 ### Further configuration
 list of env var, default value and their usage:
 ```
+ACTIVATE_SPAM_DETECTION_SERVICE:
+    default: false
+    usage: Activate the spam detection service if api url is set to default one
 SPAM_DETECTION_API_AUTH_TOKEN
     default_value: dummy
     usage: Token auth for authentication used by external service, ask us for more details

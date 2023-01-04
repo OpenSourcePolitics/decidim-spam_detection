@@ -31,6 +31,8 @@ module Decidim
       end
 
       def self.call
+        return unless Decidim::SpamDetection.service_activated?
+
         new.ask_and_mark
       end
 

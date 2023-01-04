@@ -38,5 +38,9 @@ module Decidim
         ENV.fetch("ACTIVATE_SPAM_DETECTION_SERVICE", "0") == "1" || spam_detection_api_url != DEFAULT_URL
       end
     end
+
+    def self.service_activated?
+      spam_detection_api_activate_service.call
+    end
   end
 end
