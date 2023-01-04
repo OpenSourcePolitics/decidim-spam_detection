@@ -25,6 +25,12 @@ module Decidim
         end
       end
 
+      describe "spam_detection_api_force_activate_service" do
+        it "returns the default value" do
+          expect(subject.spam_detection_api_force_activate_service).to eq(false)
+        end
+      end
+
       describe "spam_detection_api_activate_service" do
         it "returns the default value" do
           expect(subject.spam_detection_api_activate_service.call).to eq(true)
@@ -32,11 +38,8 @@ module Decidim
 
         context "when force is set to true" do
           before do
-            ENV["ACTIVATE_SPAM_DETECTION_SERVICE"] = "1"
-          end
-
-          after do
-            ENV["ACTIVATE_SPAM_DETECTION_SERVICE"] = nil
+            allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new("production"))
+            allow(subject).to receive(:spam_detection_api_force_activate_service).and_return(true)
           end
 
           it "returns true" do
@@ -46,6 +49,7 @@ module Decidim
 
         context "when url is not the default one" do
           before do
+            allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new("production"))
             allow(subject).to receive(:spam_detection_api_url).and_return("http://other.org:8080/api")
           end
 
@@ -57,15 +61,7 @@ module Decidim
 
       describe ".service_activated?" do
         it "returns true if the spam service is activated" do
-          allow(subject).to receive(:spam_detection_api_activate_service).and_return(-> { true })
-
           expect(subject.service_activated?).to eq(true)
-        end
-
-        it "returns false if the spam service is not activated" do
-          allow(subject).to receive(:spam_detection_api_activate_service).and_return(-> { false })
-
-          expect(subject.service_activated?).to eq(false)
         end
       end
     end

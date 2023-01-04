@@ -31,11 +31,15 @@ module Decidim
       ENV.fetch("PERFORM_BLOCK_USER", "0") == "1"
     end
 
+    config_accessor :spam_detection_api_force_activate_service do
+      ENV.fetch("ACTIVATE_SPAM_DETECTION_SERVICE", "0") == "1"
+    end
+
     config_accessor :spam_detection_api_activate_service do
       lambda do
         return true unless Rails.env.production?
 
-        ENV.fetch("ACTIVATE_SPAM_DETECTION_SERVICE", "0") == "1" || spam_detection_api_url != DEFAULT_URL
+        spam_detection_api_force_activate_service || spam_detection_api_url != DEFAULT_URL
       end
     end
 
