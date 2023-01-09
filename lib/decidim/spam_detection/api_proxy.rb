@@ -6,8 +6,8 @@ require "net/http"
 module Decidim
   module SpamDetection
     class ApiProxy
-      URL = URI(ENV.fetch("SPAM_DETECTION_API_URL", "http://localhost:8080/api"))
-      AUTH_TOKEN = ENV.fetch("SPAM_DETECTION_API_AUTH_TOKEN", "dummy")
+      URL = URI(Decidim::SpamDetection.spam_detection_api_url)
+      AUTH_TOKEN = Decidim::SpamDetection.spam_detection_api_auth_token
 
       def initialize(data_array, batch_size)
         @data_array = data_array
