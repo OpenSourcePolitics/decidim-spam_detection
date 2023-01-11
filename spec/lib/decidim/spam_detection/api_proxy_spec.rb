@@ -85,12 +85,12 @@ module Decidim
           let(:url) { URI("https://something.example.org") }
 
           it "returns true" do
-            expect(subject_class.use_ssl?(url)).to eq(true)
+            expect(subject_class.use_ssl?(url)).to be(true)
           end
         end
 
         it "returns false" do
-          expect(subject_class.use_ssl?(url)).to eq(false)
+          expect(subject_class.use_ssl?(url)).to be(false)
         end
       end
     end

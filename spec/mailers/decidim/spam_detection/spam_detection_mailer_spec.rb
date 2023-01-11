@@ -15,7 +15,7 @@ module Decidim
         let(:mail) { described_class.notify_detection(user, results) }
 
         describe "localisation" do
-          let(:subject) { "Informe de la tasca automàtica detecció de spam" }
+          let(:mail_subject) { "Informe de la tasca automàtica detecció de spam" }
           let(:default_subject) { "Automated spam detection task digest" }
 
           let(:body) { "Aquí teniu l’informe de la tasca de detecció de spam" }

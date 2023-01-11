@@ -54,7 +54,6 @@ module Decidim
           password: password,
           password_confirmation: password,
           tos_agreement: true,
-          email_on_notification: false,
           email_on_moderations: false
         }
         moderation_admin = Decidim::User.new(params.merge(additional_params))

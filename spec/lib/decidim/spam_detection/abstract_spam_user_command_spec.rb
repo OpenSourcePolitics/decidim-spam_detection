@@ -56,7 +56,7 @@ module Decidim
 
           context "when extended_data already exist" do
             it "doesn't overrides it" do
-              user.update!(extended_data: { "other": "data" })
+              user.update!(extended_data: { other: "data" })
               subject.add_spam_detection_metadata!({ "foo" => "bar" })
 
               expect(user.reload.extended_data).to eq({ "other" => "data", "spam_detection" => { "foo" => "bar" } })

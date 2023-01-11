@@ -23,7 +23,7 @@ describe Decidim::SpamDetection::NotifyAdmins do
     let(:mailer) { double :mailer }
 
     it "sends an email to admins" do
-      expect(Decidim::SpamDetection::SpamDetectionMailer)
+      allow(Decidim::SpamDetection::SpamDetectionMailer)
         .to receive(:notify_detection)
         .with(admin, { reported_user: 2, blocked_user: 1, nothing: 2 })
         .and_return(mailer)
