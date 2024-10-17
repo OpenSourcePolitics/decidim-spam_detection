@@ -21,7 +21,11 @@ module Decidim
         @reported_spams_users ||= Decidim::User.where(admin: false, blocked: false, deleted_at: nil)
                                                .where("(extended_data #> '{spam_detection, unreported_at}') is null")
                                                .where("(extended_data #> '{spam_detection, unblocked_at}') is null")
-                                               .where("(extended_data -> 'spam_detection' ->> 'probability')::float >= ?", Decidim::SpamDetection::SpamUserCommandAdapter::SPAM_LEVEL[:very_sure])
+                                               .where("(extended_data -> 'spam_detection' ->> 'probability')::float >= ?", spam_level)
+      end
+
+      def spam_level
+        Decidim::SpamDetection::SpamUserCommandAdapter::SPAM_LEVEL[:very_sure]
       end
     end
   end

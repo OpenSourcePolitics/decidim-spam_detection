@@ -85,7 +85,6 @@ FactoryBot.modify do
         user.extended_data = user.extended_data
                                  .dup
                                  .deep_merge({ spam_detection: { reported_at: 1.day.ago, probability: 0.99 } })
-
       end
     end
 
