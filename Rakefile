@@ -7,6 +7,7 @@ def js_configuration(path)
 
   Dir.chdir(path) do
     FileUtils.cp(babel_file_path, "babel.config.json")
+    system("yarn add graphql-ws")
     system("yarn add @babel/plugin-proposal-private-methods")
     system("yarn add @babel/plugin-proposal-private-property-in-object")
   end
