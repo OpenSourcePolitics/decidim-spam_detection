@@ -10,7 +10,7 @@ module Decidim
         users = reported_spams_users
         Rails.logger.info "Blocking users marked as spam: #{users.count} users found"
         users.find_each do |user|
-          Decidim::SpamDetection::BlockSpamUserCommand.call(user, Decidim::SpamDetection::SpamUserCommandAdapter::SPAM_LEVEL[:very_sure]).call
+          Decidim::SpamDetection::BlockSpamUserCommand.call(user, spam_level).call
         end
         Rails.logger.info "Terminated..."
       end
