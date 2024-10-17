@@ -60,7 +60,6 @@ jobs:
       - uses: nanasess/setup-chromedriver@v2
       - run: bundle exec rspec
         name: RSpec
-      - uses: codecov/codecov-action@v1
       - uses: actions/upload-artifact@v3
         if: always()
         with:
