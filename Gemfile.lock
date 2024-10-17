@@ -800,8 +800,8 @@ DEPENDENCIES
   bootsnap (~> 1.4)
   byebug (~> 11.0)
   codecov
-  decidim
-  decidim-dev
+  decidim (~> 0.27.0)
+  decidim-dev (~> 0.27.0)
   decidim-spam_detection!
   faker (~> 2.14)
   letter_opener_web (~> 1.3)
@@ -817,4 +817,4 @@ RUBY VERSION
    ruby 3.0.6p216
 
 BUNDLED WITH
-   2.3.14
+   2.4.6
