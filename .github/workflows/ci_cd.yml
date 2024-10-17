@@ -3,7 +3,6 @@ on: [push]
 
 env:
   CI: "true"
-  CODECOV: "true"
 
 jobs:
   lint:
@@ -57,19 +56,10 @@ jobs:
         name: Create test app
       - run: mkdir -p ./spec/decidim_dummy_app/tmp/screenshots
         name: Create the screenshots folder
-      - uses: nanasess/setup-chromedriver@v1.0.1
-      - name: Run precompile if needed
-        run: |
-          if [[ -d "app/views" ]] || [[ -d "spec/mailers" ]] || [[ -d "spec/system" ]]; then
-            cd "spec/decidim_dummy_app"
-            bundle exec rails assets:precompile
-          else
-            echo "No need to precompile assets since system folder is empty"
-          fi
+      - uses: nanasess/setup-chromedriver@v2
       - run: bundle exec rspec
         name: RSpec
-      - uses: codecov/codecov-action@v1
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: screenshots
