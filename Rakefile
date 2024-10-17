@@ -10,6 +10,7 @@ def js_configuration(path)
     system("yarn add graphql-ws")
     system("yarn add @babel/plugin-proposal-private-methods")
     system("yarn add @babel/plugin-proposal-private-property-in-object")
+    system("yarn install")
   end
 end
 
