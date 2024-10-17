@@ -3,7 +3,6 @@ on: [push]
 
 env:
   CI: "true"
-  CODECOV: "false"
 
 jobs:
   lint:
