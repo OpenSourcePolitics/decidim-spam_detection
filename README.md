@@ -41,6 +41,13 @@ if you are using sidekiq scheduler you can use the following configuration:
     queue: scheduled
 ```
 
+### Block already marked users
+
+If you want to block already marked users, you can use the following command:
+```bash
+bundle exec rake decidim:spam_detection:block_users
+```
+
 ### Further configuration
 list of env var, default value and their usage:
 ```
