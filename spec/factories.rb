@@ -80,6 +80,15 @@ FactoryBot.modify do
       end
     end
 
+    trait :marked_as_spam_very_sure do
+      after(:build) do |user|
+        user.extended_data = user.extended_data
+                                 .dup
+                                 .deep_merge({ spam_detection: { reported_at: 1.day.ago, probability: 0.99 } })
+
+      end
+    end
+
     trait :unmarked_as_spam do
       after(:build) do |user|
         user.extended_data = user.extended_data
