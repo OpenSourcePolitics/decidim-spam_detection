@@ -72,6 +72,9 @@ SPAM_DETECTION_EMAIL
 PERFORM_BLOCK_USER 
     default_value: false
     usage: Determine if the bot can perform blocking, default mode is just report
+SPAM_DETECTION_BLOCKING_LEVEL
+    default_value: 0.99
+    usage: Define which level of spam probability is considered as blocking in job Decidim::SpamDetection::BlockUsersJob (and task rake decidim:spam_detection:block_users)
 ```
 
 ## API usage
