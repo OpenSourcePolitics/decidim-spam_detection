@@ -57,6 +57,7 @@ module Decidim
           @user.blocking = @current_blocking
           update_extended_data
           @user.name = "Blocked user"
+          @user.nickname = generate_nickname
           @user.save!
         end
       end
@@ -65,9 +66,22 @@ module Decidim
         I18n.t("blocked_user.reason", probability: @probability)
       end
 
+      def generate_nickname
+        max_attempts = 10
+
+        max_attempts.times do
+          random_key = SecureRandom.hex(5)
+          nickname = "blocked_#{random_key}"
+          return nickname unless Decidim::User.exists?(nickname: nickname)
+        end
+
+        raise "Unable to generate a unique nickname after #{max_attempts} attempts."
+      end
+
       def update_extended_data
         @user.extended_data = {} if @user.extended_data.nil?
         @user.extended_data["user_name"] = @user.name
+        @user.extended_data["user_nickname"] = @user.nickname
       end
     end
   end
