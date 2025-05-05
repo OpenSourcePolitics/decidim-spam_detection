@@ -20,6 +20,11 @@ def fix_babel_config(path)
     babel_config = "#{Dir.pwd}/babel.config.json"
     File.delete(babel_config) if File.exist?(babel_config)
     FileUtils.cp("#{__dir__}/babel.config.json", Dir.pwd)
+    system("yarn add graphql-ws")
+    system("yarn add @tarekraafat/autocomplete.js")
+    system("yarn add @babel/plugin-proposal-private-methods")
+    system("yarn add @babel/plugin-proposal-private-property-in-object")
+    system("yarn install")
   end
 end
 
