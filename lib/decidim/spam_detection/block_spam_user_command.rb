@@ -75,7 +75,7 @@ module Decidim
           return nickname unless Decidim::User.exists?(nickname: nickname)
         end
 
-        raise "Unable to generate a unique nickname after #{max_attempts} attempts."
+        broadcast(:invalid, "Unable to generate a unique nickname after #{max_attempts} attempts.")
       end
 
       def update_extended_data
