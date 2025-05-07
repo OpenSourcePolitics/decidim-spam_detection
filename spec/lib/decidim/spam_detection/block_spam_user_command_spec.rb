@@ -5,48 +5,84 @@ require "spec_helper"
 module Decidim
   module SpamDetection
     describe BlockSpamUserCommand do
-      let(:subject) { described_class.call(user, spam_probabilty) }
+      subject { described_class.call(user, spam_probability) }
+
       let(:organization) { create(:organization) }
       let!(:user) { create(:user, organization: organization) }
-      let(:spam_probabilty) { 0.1 }
+      let(:spam_probability) { 0.1 }
 
-      describe "#call" do
+      shared_examples "a successful block" do
         it "blocks the user" do
-          expect { subject }.to change(Decidim::UserBlock, :count)
+          expect { subject }.to change(Decidim::UserBlock, :count).by(1)
         end
 
         it "creates a log" do
-          expect { subject }.to change(Decidim::ActionLog, :count)
-          expect(Decidim::ActionLog.last.extra.dig("extra", "current_justification")).to eq("Our automatic spam account detection task has blocked you. If this is an error. Contact the platform administrators who will be able to restore your account.")
+          expect { subject }.to change(Decidim::ActionLog, :count).by(1)
+          expect(Decidim::ActionLog.last.extra.dig("extra", "current_justification"))
+            .to eq("Our automatic spam account detection task has blocked you. If this is an error. Contact the platform administrators who will be able to restore your account.")
         end
 
-        it "create a moderation entry" do
-          expect { subject }.to change(Decidim::UserModeration, :count)
+        it "creates a moderation entry" do
+          expect { subject }.to change(Decidim::UserModeration, :count).by(1)
         end
 
-        it "add spam detection metadata" do
+        it "adds spam detection metadata" do
           subject
-
           expect(user.reload.extended_data.dig("spam_detection", "blocked_at")).not_to be_nil
-          expect(user.reload.extended_data.dig("spam_detection", "spam_probability")).to eq(0.1)
+          expect(user.reload.extended_data.dig("spam_detection", "spam_probability")).to eq(spam_probability)
         end
 
         it "runs without error" do
           expect(subject).to be_success
         end
 
-        it "broadcast a result" do
+        it "broadcasts a result" do
           expect(subject.result).to eq(:ok)
         end
+      end
+
+      describe "#call" do
+        include_examples "a successful block"
 
         context "when extended_data is nil" do
-          before do
-            user.update!(extended_data: nil)
-          end
+          before { user.update!(extended_data: nil) }
 
-          it "broadcast ok" do
+          it "broadcasts ok" do
             expect(subject.result).to eq(:ok)
           end
+        end
+
+        context "when nickname contains forbidden unicode characters" do
+          let!(:user) do
+            user = create(:user, organization: organization)
+            user.nickname = "forbıdden_nıckname"
+            user.save!(validate: false)
+            user
+          end
+
+          include_examples "a successful block"
+        end
+
+        context "when nickname contains emojis" do
+          let!(:user) do
+            user = create(:user, organization: organization)
+            user.nickname = "weird🤖name🚀"
+            user.save!(validate: false)
+            user
+          end
+
+          include_examples "a successful block"
+        end
+
+        context "when nickname contains strange accents" do
+          let!(:user) do
+            user = create(:user, organization: organization)
+            user.nickname = "nîcknäme_çurîeux"
+            user.save!(validate: false)
+            user
+          end
+
+          include_examples "a successful block"
         end
       end
     end
