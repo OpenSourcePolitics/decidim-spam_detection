@@ -36,15 +36,16 @@ module Decidim
     end
 
     config_accessor :spam_detection_api_activate_service do
-      lambda do
-        return true unless Rails.env.production?
-
-        spam_detection_api_force_activate_service || spam_detection_api_url != DEFAULT_URL
-      end
+      !Rails.env.production? ||
+        spam_detection_api_force_activate_service ||
+        spam_detection_api_url != DEFAULT_URL
     end
 
     def self.service_activated?
-      spam_detection_api_activate_service.call
+      # Temporary change because we are going from callable to boolean and
+      # if we need to go back we want to keep compatibility without breaking.
+      value = spam_detection_api_activate_service
+      value.respond_to?(:call) ? value.call : value
     end
   end
 end

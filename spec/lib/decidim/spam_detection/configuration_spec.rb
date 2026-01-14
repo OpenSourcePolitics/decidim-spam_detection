@@ -33,7 +33,7 @@ module Decidim
 
       describe "spam_detection_api_activate_service" do
         it "returns the default value" do
-          expect(subject.spam_detection_api_activate_service.call).to be(true)
+          expect(subject.spam_detection_api_activate_service).to be(true)
         end
 
         context "when force is set to true" do
@@ -43,7 +43,7 @@ module Decidim
           end
 
           it "returns true" do
-            expect(subject.spam_detection_api_activate_service.call).to be(true)
+            expect(subject.spam_detection_api_activate_service).to be(true)
           end
         end
 
@@ -54,7 +54,7 @@ module Decidim
           end
 
           it "returns true" do
-            expect(subject.spam_detection_api_activate_service.call).to be(true)
+            expect(subject.spam_detection_api_activate_service).to be(true)
           end
         end
       end
