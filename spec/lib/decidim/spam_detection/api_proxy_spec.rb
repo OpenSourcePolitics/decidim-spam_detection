@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require_relative "../../../support/spam_detection_spec_helpers"
 
 module Decidim
   module SpamDetection
@@ -9,13 +10,15 @@ module Decidim
       let(:subject_class) { described_class }
       let(:organization) { create(:organization) }
       let!(:users) { create_list(:user, 5, organization: organization) }
-      let(:mark_user_service) { Decidim::SpamDetection::MarkUsersService.new }
-      let(:users_data) { mark_user_service.cleaned_users }
+
+      let(:users_data) { SpecHelpers.serialize_users(users) }
+
       let(:returned_users_data) do
         users_data.map do |user_data|
-          user_data.merge("spam_proability" => Random.new.rand(100.0))
+          user_data.merge("spam_probability" => Random.new.rand(100.0))
         end
       end
+
       let(:url) { "http://localhost:8080/api" }
       let(:batch_size) { 1000 }
       let(:request) do
