@@ -56,12 +56,7 @@ module Decidim
 
         process_in_batches
 
-        if @results.any?
-          Rails.logger.info("[SpamDetection] Completed. Summary by organization: #{status}")
-          notify_admins!
-        else
-          Rails.logger.info("[SpamDetection] Completed. No spam detected.")
-        end
+        notify_final_summary! if @processed_count.positive?
         true
       end
 
@@ -69,12 +64,6 @@ module Decidim
         @results.each_with_object({}) do |result, hash|
           hash[result[0]] = result[1].tally
         end
-      end
-
-      def notify_admins!
-        Decidim::SpamDetection::NotifyAdmins.perform_later(status)
-      rescue StandardError => e
-        Rails.logger.error("[SpamDetection] Failed to notify admins: #{e.message}")
       end
 
       private
@@ -97,6 +86,11 @@ module Decidim
 
           @processed_count += batch.size
           Rails.logger.info("[SpamDetection] Total processed: #{@processed_count}, Errors: #{@error_count}")
+
+          if @results.any?
+            notify_admins_for_batch!
+            @results.clear
+          end
 
           last_id = batch.last.id
           sleep(SLEEP_BETWEEN_BATCHES)
@@ -173,6 +167,21 @@ module Decidim
       def add_to_results(organization_id, result)
         @results[organization_id] ||= []
         @results[organization_id] << result
+      end
+
+      def notify_admins_for_batch!
+        return unless @results.any?
+
+        Decidim::SpamDetection::NotifyAdmins.perform_later(status)
+        Rails.logger.info("[SpamDetection] Notified admins for batch: #{status}")
+      rescue StandardError => e
+        Rails.logger.error("[SpamDetection] Failed to notify admins for batch: #{e.message}")
+      end
+
+      def notify_final_summary!
+        Rails.logger.info("[SpamDetection] Completed. Total processed: #{@processed_count}, Errors: #{@error_count}")
+      rescue StandardError => e
+        Rails.logger.error("[SpamDetection] Failed to log final summary: #{e.message}")
       end
     end
   end

@@ -19,19 +19,22 @@ module Decidim
     autoload :BlockSpamUserCommand, "decidim/spam_detection/block_spam_user_command"
     autoload :SpamUserCommandAdapter, "decidim/spam_detection/spam_user_command_adapter"
 
-    config_accessor :spam_detection_api_url do
+    # Read ENV at runtime instead of at boot time
+    # Seems to be an issue on self-hosted
+    # Runs normally on Kubernetes because of how env vars work
+    def self.spam_detection_api_url
       ENV.fetch("SPAM_DETECTION_API_URL", DEFAULT_URL)
     end
 
-    config_accessor :spam_detection_api_auth_token do
+    def self.spam_detection_api_auth_token
       ENV.fetch("SPAM_DETECTION_API_AUTH_TOKEN", "dummy")
     end
 
-    config_accessor :spam_detection_api_perform_block_user do
+    def self.spam_detection_api_perform_block_user
       ENV.fetch("PERFORM_BLOCK_USER", "0") == "1"
     end
 
-    config_accessor :spam_detection_api_force_activate_service do
+    def self.spam_detection_api_force_activate_service
       ENV.fetch("ACTIVATE_SPAM_DETECTION_SERVICE", "0") == "1"
     end
 
@@ -42,10 +45,7 @@ module Decidim
     end
 
     def self.service_activated?
-      # Temporary change because we are going from callable to boolean and
-      # if we need to go back we want to keep compatibility without breaking.
-      value = spam_detection_api_activate_service
-      value.respond_to?(:call) ? value.call : value
+      spam_detection_api_activate_service
     end
   end
 end

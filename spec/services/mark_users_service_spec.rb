@@ -113,6 +113,7 @@ module Decidim
 
             before do
               allow(Decidim::SpamDetection::ApiProxy).to receive(:request).and_return(api_response)
+              allow(Decidim::SpamDetection::NotifyAdmins).to receive(:perform_later)
             end
 
             it "processes users and returns true" do
@@ -121,6 +122,11 @@ module Decidim
 
             it "calls the SpamUserCommandAdapter for each user" do
               expect(Decidim::SpamDetection::SpamUserCommandAdapter).to receive(:call).exactly(5).times.and_call_original
+              described_class.call
+            end
+
+            it "notifies admins after batch processing" do
+              expect(Decidim::SpamDetection::NotifyAdmins).to receive(:perform_later).at_least(:once)
               described_class.call
             end
           end
@@ -164,6 +170,7 @@ module Decidim
 
         before do
           allow(Decidim::SpamDetection::ApiProxy).to receive(:request).and_return(api_response)
+          allow(Decidim::SpamDetection::NotifyAdmins).to receive(:perform_later)
         end
 
         it "processes users in batches" do
@@ -171,13 +178,18 @@ module Decidim
           expect(service.instance_variable_get(:@processed_count)).to eq(5)
         end
 
-        it "builds results by organization" do
+        it "notifies admins for each batch with results" do
+          expect(Decidim::SpamDetection::NotifyAdmins).to receive(:perform_later).at_least(:once)
           service.ask_and_mark
-          results = service.instance_variable_get(:@results)
-          expect(results.keys).to include(organization.id.to_s)
         end
 
-        context "when notify_admins! fails" do
+        it "clears results after notifying admins" do
+          service.ask_and_mark
+          results = service.instance_variable_get(:@results)
+          expect(results).to be_empty
+        end
+
+        context "when notify_admins_for_batch! fails" do
           before do
             allow(Decidim::SpamDetection::NotifyAdmins).to receive(:perform_later).and_raise(StandardError)
           end
@@ -189,40 +201,35 @@ module Decidim
       end
 
       describe "#status" do
-        let(:api_response) do
-          [
-            { "id" => users[0].id, "decidim_organization_id" => users[0].decidim_organization_id, "spam_probability" => 0.999 },
-            { "id" => users[1].id, "decidim_organization_id" => users[1].decidim_organization_id, "spam_probability" => 0.0 },
-            { "id" => users[2].id, "decidim_organization_id" => users[2].decidim_organization_id, "spam_probability" => 0.71 },
-            { "id" => users[3].id, "decidim_organization_id" => users[3].decidim_organization_id, "spam_probability" => 0.9 },
-            { "id" => users[4].id, "decidim_organization_id" => users[4].decidim_organization_id, "spam_probability" => 0.1 }
-          ]
-        end
-
-        before do
-          allow(Decidim::SpamDetection).to receive(:service_activated?).and_return(true)
-          allow(Decidim::SpamDetection::ApiProxy).to receive(:request).and_return(api_response)
-          allow(Decidim::SpamDetection::SpamUserCommandAdapter).to receive(:perform_block_user?).and_return(true)
-        end
-
         it "returns a hash with the count for each result" do
-          service.ask_and_mark
+          service.instance_variable_set(:@results, {
+                                          organization.id.to_s => [:reported_user, :blocked_user, :nothing, :reported_user, :blocked_user]
+                                        })
           status = service.status
 
           expect(status).to be_a(Hash)
           expect(status[organization.id.to_s]).to be_a(Hash)
           expect(status[organization.id.to_s].keys).to match_array([:reported_user, :blocked_user, :nothing])
+          expect(status[organization.id.to_s][:reported_user]).to eq(2)
+          expect(status[organization.id.to_s][:blocked_user]).to eq(2)
+          expect(status[organization.id.to_s][:nothing]).to eq(1)
         end
       end
 
-      describe "#notify_admins!" do
+      describe "#notify_admins_for_batch!" do
         before do
           service.instance_variable_set(:@results, { organization.id.to_s => [:reported_user, :blocked_user] })
         end
 
-        it "enqueues the NotifyAdmins job" do
+        it "enqueues the NotifyAdmins job when results are present" do
           expect(Decidim::SpamDetection::NotifyAdmins).to receive(:perform_later)
-          service.notify_admins!
+          service.send(:notify_admins_for_batch!)
+        end
+
+        it "does not enqueue when results are empty" do
+          service.instance_variable_set(:@results, {})
+          expect(Decidim::SpamDetection::NotifyAdmins).not_to receive(:perform_later)
+          service.send(:notify_admins_for_batch!)
         end
 
         context "when NotifyAdmins fails" do
@@ -231,7 +238,7 @@ module Decidim
           end
 
           it "handles error gracefully without raising" do
-            expect { service.notify_admins! }.not_to raise_error
+            expect { service.send(:notify_admins_for_batch!) }.not_to raise_error
           end
         end
       end
@@ -239,6 +246,10 @@ module Decidim
       describe "batch processing" do
         context "with large dataset" do
           let!(:many_users) { create_list(:user, 15, organization: organization) }
+
+          before do
+            allow(Decidim::SpamDetection::NotifyAdmins).to receive(:perform_later)
+          end
 
           it "processes users in batches" do
             call_count = 0
@@ -262,6 +273,17 @@ module Decidim
             end
 
             expect { service.ask_and_mark }.not_to raise_error
+          end
+
+          it "notifies admins multiple times for multiple batches" do
+            stub_const("#{described_class}::BATCH_SIZE", 10)
+
+            allow(Decidim::SpamDetection::ApiProxy).to receive(:request) do |batch|
+              batch.map { |u| { "id" => u["id"], "decidim_organization_id" => organization.id, "spam_probability" => 0.9 } }
+            end
+
+            expect(Decidim::SpamDetection::NotifyAdmins).to receive(:perform_later).at_least(:twice)
+            service.ask_and_mark
           end
         end
       end
@@ -294,6 +316,17 @@ module Decidim
           expect(base_query.order_values).not_to be_empty
           expect(described_class::BATCH_SIZE).to be > 0
           expect(described_class::BATCH_SIZE).to be <= 200
+        end
+
+        it "clears results after each batch notification" do
+          allow(Decidim::SpamDetection::ApiProxy).to receive(:request) do |batch|
+            batch.map { |u| { "id" => u["id"], "decidim_organization_id" => organization.id, "spam_probability" => 0.9 } }
+          end
+          allow(Decidim::SpamDetection::NotifyAdmins).to receive(:perform_later)
+
+          service.ask_and_mark
+          results = service.instance_variable_get(:@results)
+          expect(results).to be_empty
         end
       end
 
