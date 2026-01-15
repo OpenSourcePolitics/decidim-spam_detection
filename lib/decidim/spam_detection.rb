@@ -35,7 +35,7 @@ module Decidim
       ENV.fetch("ACTIVATE_SPAM_DETECTION_SERVICE", "0") == "1"
     end
 
-    config_accessor :spam_detection_api_activate_service do
+    def self.spam_detection_api_activate_service
       !Rails.env.production? ||
         spam_detection_api_force_activate_service ||
         spam_detection_api_url != DEFAULT_URL
